@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  </head>
+  <body>
+    <a-scene>       
+        <a-sky src="./images/1.png"></a-sky>
+      
+        <a-entity camera look-controls>
+            <a-cursor id="cursor" fuse="true" fuse-timeout="1000"></a-cursor>
+        </a-entity>
+
+       <a-plane id="main_entrance" position="-5 -0.5 0.3" rotation="0 90 0" width="1.5" height="2" color="#FF0000" opacity="0.6"></a-plane>
+      
+        <a-plane id="roof_sculpture" position="-5 3.5 0.3" rotation="0 90 0" width="2" height="1.5" color="#0000FF" opacity="0.6"></a-plane>
+
+        <a-text id="output" position="-1 1.5 -2" color="black" value="Tracking gaze..." wrap-count="40"></a-text>
+        <a-sound id="audio_1" src="./IMAGE 1 ROI 1.wav" autoplay="false"></a-sound>
+        <a-sound id="audio_2" src="./IMAGE 1 ROI 2.wav" autoplay="false"></a-sound>    
+   <!-- Next Button Plane (Hidden Initially) -->
+   <a-plane id="next_button" position="0 1 -3" rotation="0 0 0" width="1" height="0.5" color="#fff" opacity="0.8" visible="false"></a-plane>
+   <a-text id="next_text" position="0 1 -3" value="Next" align="center" color="#000" visible="false"></a-text>
+ </a-scene>
+
+ <script>
+   const planes = ['main_entrance', 'roof_sculpture'];
+   let gazeData = {};
+   let firstLookTimeMain = null;
+   let firstLookTimeRoof = null;
+   let audio1StartTime = null;
+   let audio2StartTime = null;
+
+   // Start first audio after 3 seconds
+   setTimeout(() => {
+     document.querySelector('#audio_1').components.sound.playSound();
+     audio1StartTime = Date.now();
+   }, 3000);
+
+   // Start second audio after 1 minute (60s after first audio starts)
+   setTimeout(() => {
+     document.querySelector('#audio_2').components.sound.playSound();
+     audio2StartTime = Date.now();
+   }, 63000);
+
+   // Show Next Button after 100 seconds
+   setTimeout(() => {
+     document.querySelector('#next_button').setAttribute('visible', 'true');
+     document.querySelector('#next_text').setAttribute('visible', 'true');
+   }, 1000);
+
+   planes.forEach(id => {
+     gazeData[id] = { totalTime: 0, longestTime: 0, startTime: null };
+
+     document.querySelector(`#${id}`).addEventListener('mouseenter', () => {
+       gazeData[id].startTime = Date.now();
+       
+       if (id === 'main_entrance' && firstLookTimeMain === null && audio1StartTime !== null) {
+         firstLookTimeMain = (Date.now() - audio1StartTime) / 1000;
+         updateOutput();
+       }
+       
+       if (id === 'roof_sculpture' && firstLookTimeRoof === null && audio2StartTime !== null) {
+         firstLookTimeRoof = (Date.now() - audio2StartTime) / 1000;
+         updateOutput();
+       }
+     });
+
+     document.querySelector(`#${id}`).addEventListener('mouseleave', () => {
+       if (gazeData[id].startTime) {
+         let duration = (Date.now() - gazeData[id].startTime) / 1000;
+         gazeData[id].totalTime += duration;
+         if (duration > gazeData[id].longestTime) {
+           gazeData[id].longestTime = duration;
+         }
+         gazeData[id].startTime = null;
+       }
+       updateOutput();
+     });
+   });
+
+   function updateOutput() {
+     let outputText = `Main Entrance: Total ${gazeData['main_entrance'].totalTime.toFixed(2)}s, Longest ${gazeData['main_entrance'].longestTime.toFixed(2)}s\n`;
+     outputText += `Roof Sculpture: Total ${gazeData['roof_sculpture'].totalTime.toFixed(2)}s, Longest ${gazeData['roof_sculpture'].longestTime.toFixed(2)}s`;
+     
+     if (firstLookTimeMain !== null) {
+       outputText += `\nReaction Time (Main Entrance): ${firstLookTimeMain.toFixed(2)}s`;
+     }
+     
+     if (firstLookTimeRoof !== null) {
+       outputText += `\nReaction Time (Roof Sculpture): ${firstLookTimeRoof.toFixed(2)}s`;
+     }
+     
+     document.querySelector('#output').setAttribute('value', outputText);
+   }
+ </script>
+  </body>
+</html>
