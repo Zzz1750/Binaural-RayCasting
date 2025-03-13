@@ -11,9 +11,9 @@
             <a-cursor id="cursor" fuse="true" fuse-timeout="1000"></a-cursor>
         </a-entity>
 
-       <a-plane id="main_entrance" position="-5 -0.5 0.3" rotation="0 90 0" width="1.5" height="2" color="#FF0000" opacity="0.6"></a-plane>
+       <a-plane id="main_entrance" position="-5 0 0.3" rotation="0 90 0" width="1.5" height="2" color="#FF0000" opacity="0.6"></a-plane>
       
-        <a-plane id="roof_sculpture" position="-5 3.5 0.3" rotation="0 90 0" width="2" height="1.5" color="#0000FF" opacity="0.6"></a-plane>
+        <a-plane id="roof_sculpture" position="-5 4 0.3" rotation="0 90 0" width="2.5" height="1.5" color="#0000FF" opacity="0.6"></a-plane>
 
         <a-text id="output" position="-1 1.5 -2" color="black" value="Tracking gaze..." wrap-count="40"></a-text>
         <a-sound id="audio_1" src="./IMAGE 1 ROI 1.wav" autoplay="false"></a-sound>
@@ -47,7 +47,7 @@
    setTimeout(() => {
      document.querySelector('#next_button').setAttribute('visible', 'true');
      document.querySelector('#next_text').setAttribute('visible', 'true');
-   }, 1000);
+   }, 100000);
 
    planes.forEach(id => {
      gazeData[id] = { totalTime: 0, longestTime: 0, startTime: null };
