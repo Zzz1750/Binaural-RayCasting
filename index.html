@@ -9,7 +9,7 @@
 </head>
 <body>
     <!-- <button id="start_tour">Start Tour</button> -->
-
+    
     <!-- Scene1 -->
     <div id="myscene1" style="display: none;">
         <a-scene>
@@ -92,9 +92,21 @@
         }
     </script>
 
+    <a-scene>
+        <a-entity id="right-hand" laser-controls="hand: right"></a-entity>
+        <a-box id="myButton"
+        position="0 1.5 -2"
+        color="#4CC3D9"
+        depth="0.2"
+        height="0.5"
+        width="1"
+        class="clickable">
+ </a-box>
+    </a-scene>
     <!-- Scene2 -->
-     <div id="myscene2" style="display: none;">
+     <div id="myscene2" style="display:none">
         <a-scene>
+
             <a-sky src="./images/1.png"></a-sky>
             <a-entity camera look-controls position="0 1.6 3">
                 <a-cursor id="cursor" fuse="true" fuse-timeout="1000"></a-cursor>
@@ -110,40 +122,20 @@
        
      </div>
 
-     <a-scene>
-        <a-entity id="right-hand" laser-controls="hand: right"></a-entity>
-
-        <a-box id="start_scene2"
-             position="0 1.6 -3"
-             color="#4CAF50"
-             width="1"
-             height="0.5"
-             depth="0.2">
-        <a-text value="Click Me"
-                align="center"
-                position="0 0 0.15"
-                color="#fff"></a-text>
-      </a-box>
-     </a-scene>
-
      <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            let scene2Div = document.getElementById('myscene2');
-            let start_scene2 = document.getElementById('start_scene2');
-            let audio = document.getElementById('audio_4');
-            
-            if (scene2Div && start_scene2 && audio) {
-                scene2Div.style.display = 'none';
-                
-                start_scene2.addEventListener('click', function () {
-                    scene2Div.style.display = 'block';
-                    setTimeout(() => {
-                        audio.play();
-                    }, 3000); // Play after 3 seconds
-                });
-            }
+        // Handle click
+        document.querySelector('#myButton').addEventListener('click', () => {
+          console.log('Button clicked!');
+          myFunction();
         });
-
+  
+        function myFunction() {
+          alert("Function triggered by VR click!");
+          // Add your logic here
+        }
+      </script>
+      
+     <script>
         AFRAME.registerComponent('gaze-tracker-scene2', {
             schema: { target: { type: 'string' } },
             init: function () {
@@ -184,10 +176,11 @@
                 }
             }
         });
-
+        
         document.querySelector('#mosiac_tiles').setAttribute('gaze-tracker-scene2', 'target: mosiac_tiles');
         document.querySelector('#wood_carvings').setAttribute('gaze-tracker-scene2', 'target: wood_carvings');
-
+        
+        
      </script>
 </body>
 </html>
