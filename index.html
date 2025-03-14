@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <style>
@@ -7,100 +7,135 @@
     </style>
 </head>
 <body>
-    <div id="scene1">
-        <a-scene>
-            <a-entity id="right-hand" laser-controls="hand: right"></a-entity>
-            <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
-            
-            <a-box id="start_scene2"
-                position="0 1.5 -2"
-                color="#4CC3D9"
-                depth="0.2"
-                height="0.5"
-                width="1"
-                class="clickable">
-                <a-text value="Start Scene 2"
-                    align="center"
-                    color="black"
-                    position="0 0 0.11"
-                    width="2">
-                </a-text>
-            </a-box>
-        </a-scene>
-    </div>
-   
 
-    <!-- Scene2 -->
-    <div id="myscene2" style="display:none">
-        <a-scene>
+    <a-scene background="color: black" loading-screen="enabled: false">
+        <a-assets>
+            <audio id="intro-audio" src="intro.wav" preload="auto"></audio>
+            <audio id="audio1" src="IMAGE_1_ROI_1.wav" preload="auto"></audio>
+            <audio id="audio2" src="IMAGE_1_ROI_2.wav" preload="auto"></audio>
+            <img id="logo-img" src="./images/logo.png">
+        </a-assets>
 
-            <a-sky src="./images/1.png"></a-sky>
-            <a-entity camera look-controls position="0 1.6 3">
-                <a-cursor id="cursor" fuse="true" fuse-timeout="1000"></a-cursor>
+        <!-- PC Mouse Look + Cursor -->
+        <a-entity camera position="0 1.6 0" look-controls>
+            <a-cursor color="white"></a-cursor>
+        </a-entity>
+
+        <!-- VR Right-Hand Controller -->
+        <a-entity id="rightHand" laser-controls="hand: right"></a-entity>
+
+        <!-- Intro Section -->
+        <a-entity id="intro">
+            <a-entity text="value: Welcome to this immersive experience; color: white; width: 5; align: center" position="0 1.9 -4"></a-entity>
+            <a-entity text="value: Exploring the architectural marvels of Chettinad...; color: white; width: 3.5; wrapCount: 50; align: left" position="0 1 -4"></a-entity>
+            <a-entity sound="src: #intro-audio; autoplay: true; volume: 1"></a-entity>
+            <a-image src="#logo-img" position="0 2.5 -4" width="0.5" height="0.5"></a-image>
+
+            <!-- Button appears after countdown -->
+            <a-entity id="start-container" start-button-delay position="0 -0.5 -4">
+                <a-plane id="button-bg" color="#444" width="1.5" height="0.6" material="shader: flat" class="clickable" visible="false"></a-plane>
+                <a-entity id="button-text" text="value: Starts in... 10s; align: center; color: white; width: 4" position="0 0 0.01"></a-entity>
             </a-entity>
-            <a-plane id="mosiac_tiles" position="5 -3 2" rotation="-90 0 0" width="10" height="25" color="yellow" opacity="0.6"></a-plane>
-            <a-plane id="wood_carvings" position="5.5 5 3.2" rotation="90 0 0" width="3" height="3.5" color="#800080" material="opacity: 0.5; transparent: true"></a-plane>
-            <a-text id="output_scene2" position="0 3 -2" color="black" value="Tracking gaze..." wrap-count="40" width="3"></a-text>
-            <a-sound id="audio_4" src="./IMAGE_2_ROI_1.wav" autoplay="false"></a-sound>
-            <a-sound id="audio_3" src="./IMAGE_2_ROI_2.wav" autoplay="false"></a-sound>
-        </a-scene>
-    </div>
-    
-     
-     <script>
-        var start_scene2 = document.getElementById('start_scene2');
-        start_scene2.addEventListener('click',()=>{
-            document.getElementById('myscene2').style.display = 'block';
-            document.getElementById('scene1').style.display = 'none';
-        })
+        </a-entity>
 
-        AFRAME.registerComponent('gaze-tracker-scene2', {
+        <!-- Scene1 -->
+        <a-entity id="scene1" visible="false">
+            <a-sky src="./images/1.png"></a-sky>
+
+            <!-- Interactive Planes -->
+            <a-plane id="main_entrance" position="-5 0.5 0.3" rotation="0 90 0" width="1.5" height="2" color="#FF0000" opacity="0.6"></a-plane>
+            <a-plane id="roof_sculpture" position="-5 4.5 0.3" rotation="0 90 0" width="2.5" height="1.5" color="#0000FF" opacity="0.6"></a-plane>
+
+            <!-- Display Results -->
+            <a-entity id="debugText" text="value: Debug Info; color: white; width: 5;" position="0 2 -3"></a-entity>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        let totalStareTime = { main_entrance: 0, roof_sculpture: 0 };
+        let longestStareTime = { main_entrance: 0, roof_sculpture: 0 };
+        let reactionTime = { main_entrance: null, roof_sculpture: null };
+        let startTime, audio1StartTime, audio2StartTime;
+        let currentPlane = null, stareStart = null;
+
+        AFRAME.registerComponent('start-button-delay', {
+            init: function () {
+                const textEntity = document.querySelector('#button-text');
+                const buttonBg = document.querySelector('#button-bg');
+
+                let countdown = 10;
+                const interval = setInterval(() => {
+                    countdown--;
+                    if (countdown > 0) {
+                        textEntity.setAttribute('text', `value: Starts in... ${countdown}s; align: center; color: white; width: 4`);
+                    } else {
+                        clearInterval(interval);
+                        textEntity.setAttribute('text', 'value: START; align: center; color: white; width: 4');
+                        buttonBg.setAttribute('visible', true);
+
+                        buttonBg.addEventListener('click', function () {
+                            document.getElementById('scene1').setAttribute('visible', true);
+                            document.getElementById('intro').setAttribute('visible', false);
+                            startTime = performance.now();
+
+                            setTimeout(() => {
+                                document.getElementById('audio1').play();
+                                audio1StartTime = performance.now();
+                            }, 3000);
+
+                            setTimeout(() => {
+                                document.getElementById('audio2').play();
+                                audio2StartTime = performance.now();
+                            }, 65000);
+                        });
+                    }
+                }, 1000);
+            }
+        });
+
+        AFRAME.registerComponent('gaze-tracker', {
             schema: { target: { type: 'string' } },
             init: function () {
                 let el = this.el;
                 let target = this.data.target;
-                let startTime = 0;
-                
-                // Store total and longest time separately for both planes
-                if (!window.gazeData_scene2) {
-                    window.gazeData_scene2 = {
-                        mosiac_tiles: { totalTime: 0, longestTime: 0 },
-                        wood_carvings: { totalTime: 0, longestTime: 0 }
-                    };
-                }
-                
+
                 el.addEventListener('mouseenter', () => {
-                    startTime = Date.now();
+                    currentPlane = target;
+                    stareStart = performance.now();
+                    
+                    if (target === "main_entrance" && reactionTime.main_entrance === null && audio1StartTime) {
+                        reactionTime.main_entrance = (performance.now() - audio1StartTime) / 1000;
+                    }
+
+                    if (target === "roof_sculpture" && reactionTime.roof_sculpture === null && audio2StartTime) {
+                        reactionTime.roof_sculpture = (performance.now() - audio2StartTime) / 1000;
+                    }
                 });
-                
+
                 el.addEventListener('mouseleave', () => {
-                    let gazeDuration = (Date.now() - startTime) / 1000; // Convert to seconds
-                    let data = window.gazeData_scene2[target];
-                    data.totalTime += gazeDuration;
-                    if (gazeDuration > data.longestTime) {
-                        data.longestTime = gazeDuration;
+                    if (currentPlane === target && stareStart !== null) {
+                        let stareDuration = (performance.now() - stareStart) / 1000;
+                        totalStareTime[target] += stareDuration;
+                        longestStareTime[target] = Math.max(longestStareTime[target], stareDuration);
+                        stareStart = null;
                     }
-                    updateOutput();
                 });
-                
-                function updateOutput() {
-                    let outputText = document.querySelector('#output_scene2');
-                    if (outputText) {
-                        outputText.setAttribute('value', 
-                            `Mosaic Tiles: Total ${window.gazeData_scene2.mosiac_tiles.totalTime.toFixed(2)}s, Longest ${window.gazeData_scene2.mosiac_tiles.longestTime.toFixed(2)}s\n` +
-                            `Wood Carvings: Total ${window.gazeData_scene2.wood_carvings.totalTime.toFixed(2)}s, Longest ${window.gazeData_scene2.wood_carvings.longestTime.toFixed(2)}s`
-                        );
-                    }
-                }
             }
         });
-        
-        document.querySelector('#mosiac_tiles').setAttribute('gaze-tracker-scene2', 'target: mosiac_tiles');
-        document.querySelector('#wood_carvings').setAttribute('gaze-tracker-scene2', 'target: wood_carvings');
-        
-        
-     </script>
 
-     
+        document.getElementById('main_entrance').setAttribute('gaze-tracker', 'target: main_entrance');
+        document.getElementById('roof_sculpture').setAttribute('gaze-tracker', 'target: roof_sculpture');
+
+        function updateDebugText() {
+            document.getElementById('debugText').setAttribute('text', `value: 
+                Main Entrance - Total: ${totalStareTime.main_entrance.toFixed(2)}s, Longest: ${longestStareTime.main_entrance.toFixed(2)}s, Reaction: ${reactionTime.main_entrance ? reactionTime.main_entrance.toFixed(2) + 's' : 'N/A'}
+                Roof Sculpture - Total: ${totalStareTime.roof_sculpture.toFixed(2)}s, Longest: ${longestStareTime.roof_sculpture.toFixed(2)}s, Reaction: ${reactionTime.roof_sculpture ? reactionTime.roof_sculpture.toFixed(2) + 's' : 'N/A'}
+            `);
+            requestAnimationFrame(updateDebugText);
+        }
+
+        updateDebugText();
+    </script>
+
 </body>
 </html>
