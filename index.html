@@ -4,96 +4,12 @@
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <style>
         body { margin: 0; background-color: black; text-align: center; }
-        #start_tour { padding: 10px 20px; font-size: 16px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <!-- <button id="start_tour">Start Tour</button> -->
-    
-    <!-- Scene1 -->
-    <div id="myscene1" style="display: none;">
-        <a-scene>
-            <a-sky src="./images/1.png"></a-sky>
-            <a-entity camera look-controls>
-                <a-cursor id="cursor" fuse="true" fuse-timeout="1000"></a-cursor>
-            </a-entity>
-            <a-plane id="main_entrance" position="-5 0.5 0.3" rotation="0 90 0" width="1.5" height="2" color="#FF0000" opacity="0.6"></a-plane>
-            <a-plane id="roof_sculpture" position="-5 4.5 0.3" rotation="0 90 0" width="2.5" height="1.5" color="#0000FF" opacity="0.6"></a-plane>
-            <a-text id="output" position="0 1 -2" color="black" value="Tracking gaze..." wrap-count="40" width="3"></a-text>
-            <a-sound id="audio_1" src="./IMAGE_1_ROI_1.wav" autoplay="false"></a-sound>
-            <a-sound id="audio_2" src="./IMAGE_1_ROI_2.wav" autoplay="false"></a-sound>
-            <a-plane id="next_button" position="0 1 -3" width="1" height="0.5" color="#fff" opacity="0.8" visible="false"></a-plane>
-            <a-text id="next_text" position="0 1 -3" value="Next" align="center" color="#000" visible="false"></a-text>
-        </a-scene>
-    </div>
-
-    <script>
-        const planes = ['main_entrance', 'roof_sculpture'];
-        let gazeData = {}, firstLookTime = {}, audioStartTime = {};
-        let myscene1 = document.getElementById('myscene1');
-        let start_tour = document.getElementById('start_tour');
-        
-        // Hide scene initially
-        myscene1.style.display = 'none';
-        
-        /*start_tour.addEventListener('click', () => {
-            myscene1.style.display = 'block';
-            
-            setTimeout(() => playAudio('audio_1', 'main_entrance'), 3000);
-            setTimeout(() => playAudio('audio_2', 'roof_sculpture'), 63000);
-            setTimeout(showNextButton, 100000);
-        });*/
-
-        function playAudio(audioId, planeId) {
-            let audio = document.querySelector(`#${audioId}`);
-            if (audio && audio.components.sound) {
-                audio.components.sound.playSound();
-                audioStartTime[planeId] = Date.now();
-            }
-        }
-
-        function showNextButton() {
-            document.querySelector('#next_button').setAttribute('visible', 'true');
-            document.querySelector('#next_text').setAttribute('visible', 'true');
-        }
-
-        planes.forEach(id => {
-            gazeData[id] = { totalTime: 0, longestTime: 0, startTime: null };
-            firstLookTime[id] = null;
-            
-            document.querySelector(`#${id}`).addEventListener('mouseenter', () => {
-                gazeData[id].startTime = Date.now();
-                if (firstLookTime[id] === null && audioStartTime[id] !== undefined) {
-                    firstLookTime[id] = (Date.now() - audioStartTime[id]) / 1000;
-                    updateOutput();
-                }
-            });
-            
-            document.querySelector(`#${id}`).addEventListener('mouseleave', () => {
-                if (gazeData[id].startTime) {
-                    let duration = (Date.now() - gazeData[id].startTime) / 1000;
-                    gazeData[id].totalTime += duration;
-                    gazeData[id].longestTime = Math.max(gazeData[id].longestTime, duration);
-                    gazeData[id].startTime = null;
-                }
-                updateOutput();
-            });
-        });
-        
-        function updateOutput() {
-            let outputText = planes.map(id => `
-                ${id.replace('_', ' ').toUpperCase()}: 
-                Total ${gazeData[id].totalTime.toFixed(2)}s, 
-                Longest ${gazeData[id].longestTime.toFixed(2)}s 
-                ${firstLookTime[id] !== null ? `\nReaction Time: ${firstLookTime[id].toFixed(2)}s` : ''}
-            `).join('\n');
-            
-            document.querySelector('#output').setAttribute('value', outputText);
-        }
-    </script>
-
     <a-scene>
         <a-entity id="right-hand" laser-controls="hand: right"></a-entity>
+        
         <a-box id="myButton"
         position="0 1.5 -2"
         color="#4CC3D9"
@@ -101,8 +17,12 @@
         height="0.5"
         width="1"
         class="clickable">
- </a-box>
+        </a-box>
+
+        <a-entity camera position="0 1.6 0"></a-entity>
+
     </a-scene>
+
     <!-- Scene2 -->
      <div id="myscene2" style="display:none">
         <a-scene>
@@ -134,7 +54,7 @@
           // Add your logic here
         }
       </script>
-      
+
      <script>
         AFRAME.registerComponent('gaze-tracker-scene2', {
             schema: { target: { type: 'string' } },
