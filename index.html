@@ -69,7 +69,7 @@
                 const textEntity = document.querySelector('#button-text');
                 const buttonBg = document.querySelector('#button-bg');
     
-                let countdown = 10;  // Countdown updated to 10 sec
+                let countdown = 10;  
                 const interval = setInterval(() => {
                     countdown--;
                     if (countdown > 0) {
@@ -79,7 +79,9 @@
                         textEntity.setAttribute('text', 'value: START; align: center; color: white; width: 4');
                         buttonBg.setAttribute('visible', true);
     
-                        buttonBg.addEventListener('click', function () {
+                        // **VR Fix: Use `mousedown` instead of `click`**
+                        buttonBg.addEventListener('mousedown', function () {
+                            console.log("🎯 VR Button Clicked!");
                             startScene();
                             document.getElementById('scene1').setAttribute('visible', true);
                             document.getElementById('intro').setAttribute('visible', false);
@@ -96,14 +98,22 @@
         let currentPlane = null, stareStart = null;
     
         function startScene() {
+            console.log("🚀 Scene Started!");
+    
             setTimeout(() => {
+                console.log("🔊 Playing Audio 1...");
                 audio1StartTime = performance.now();
-                document.getElementById('audio1').play();
+                let audio1 = document.getElementById('audio1');
+                audio1.muted = false; // Unmute
+                audio1.play();
             }, 3000);
     
             setTimeout(() => {
+                console.log("🔊 Playing Audio 2...");
                 audio2StartTime = performance.now();
-                document.getElementById('audio2').play();
+                let audio2 = document.getElementById('audio2');
+                audio2.muted = false; // Unmute
+                audio2.play();
             }, 62000);
         }
     
@@ -111,6 +121,7 @@
             let el = document.getElementById(id);
     
             el.addEventListener('raycaster-intersected', () => {
+                console.log(`👀 Looking at ${id}`);
                 if (!stareStart) {
                     currentPlane = id;
                     stareStart = performance.now();
@@ -130,6 +141,7 @@
                     let stareDuration = (performance.now() - stareStart) / 1000;
                     totalStareTime[id] += stareDuration;
                     longestStareTime[id] = Math.max(longestStareTime[id], stareDuration);
+                    console.log(`⏱️ Stopped looking at ${id}, Total: ${totalStareTime[id]}s`);
                     stareStart = null;
                 }
             });
