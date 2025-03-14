@@ -8,15 +8,21 @@
     </style>
 </head>
 <body>
-    <button id="start_tour">Start Tour</button>
+    <!-- <button id="start_tour">Start Tour</button> -->
+
+
+    <a-entity id="right-hand" laser-controls="hand: right"></a-entity>
+
+
+    <!-- Scene1 -->
     <div id="myscene1" style="display: none;">
         <a-scene>
             <a-sky src="./images/1.png"></a-sky>
             <a-entity camera look-controls>
                 <a-cursor id="cursor" fuse="true" fuse-timeout="1000"></a-cursor>
             </a-entity>
-            <a-plane id="main_entrance" position="-5 0 0.3" rotation="0 90 0" width="1.5" height="2" color="#FF0000" opacity="0.6"></a-plane>
-            <a-plane id="roof_sculpture" position="-5 4 0.3" rotation="0 90 0" width="2.5" height="1.5" color="#0000FF" opacity="0.6"></a-plane>
+            <a-plane id="main_entrance" position="-5 0.5 0.3" rotation="0 90 0" width="1.5" height="2" color="#FF0000" opacity="0.6"></a-plane>
+            <a-plane id="roof_sculpture" position="-5 4.5 0.3" rotation="0 90 0" width="2.5" height="1.5" color="#0000FF" opacity="0.6"></a-plane>
             <a-text id="output" position="0 1 -2" color="black" value="Tracking gaze..." wrap-count="40" width="3"></a-text>
             <a-sound id="audio_1" src="./IMAGE_1_ROI_1.wav" autoplay="false"></a-sound>
             <a-sound id="audio_2" src="./IMAGE_1_ROI_2.wav" autoplay="false"></a-sound>
@@ -34,13 +40,13 @@
         // Hide scene initially
         myscene1.style.display = 'none';
         
-        start_tour.addEventListener('click', () => {
+        /*start_tour.addEventListener('click', () => {
             myscene1.style.display = 'block';
             
             setTimeout(() => playAudio('audio_1', 'main_entrance'), 3000);
             setTimeout(() => playAudio('audio_2', 'roof_sculpture'), 63000);
             setTimeout(showNextButton, 100000);
-        });
+        });*/
 
         function playAudio(audioId, planeId) {
             let audio = document.querySelector(`#${audioId}`);
@@ -89,5 +95,101 @@
             document.querySelector('#output').setAttribute('value', outputText);
         }
     </script>
+
+    <!-- Scene2 -->
+     <div id="myscene2" style="display: none;">
+        <a-scene>
+            <a-sky src="./images/1.png"></a-sky>
+            <a-entity camera look-controls position="0 1.6 3">
+                <a-cursor id="cursor" fuse="true" fuse-timeout="1000"></a-cursor>
+            </a-entity>
+            <a-plane id="mosiac_tiles" position="5 -3 2" rotation="-90 0 0" width="10" height="25" color="yellow" opacity="0.6"></a-plane>
+            <a-plane id="wood_carvings" position="5.5 5 3.2" rotation="90 0 0" width="3" height="3.5" color="#800080" material="opacity: 0.5; transparent: true"></a-plane>
+            <a-text id="output_scene2" position="0 3 -2" color="black" value="Tracking gaze..." wrap-count="40" width="3"></a-text>
+            <a-sound id="audio_4" src="./IMAGE_2_ROI_1.wav" autoplay="false"></a-sound>
+            <a-sound id="audio_3" src="./IMAGE_2_ROI_2.wav" autoplay="false"></a-sound>
+
+        </a-scene>
+        
+       
+     </div>
+
+     <a-scene>
+        <a-box id="start_scene2"
+             position="0 1.6 -3"
+             color="#4CAF50"
+             width="1"
+             height="0.5"
+             depth="0.2">
+        <a-text value="Click Me"
+                align="center"
+                position="0 0 0.15"
+                color="#fff"></a-text>
+      </a-box>
+     </a-scene>
+
+     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let scene2Div = document.getElementById('myscene2');
+            let start_scene2 = document.getElementById('start_scene2');
+            let audio = document.getElementById('audio_4');
+            
+            if (scene2Div && start_scene2 && audio) {
+                scene2Div.style.display = 'none';
+                
+                start_scene2.addEventListener('click', function () {
+                    scene2Div.style.display = 'block';
+                    setTimeout(() => {
+                        audio.play();
+                    }, 3000); // Play after 3 seconds
+                });
+            }
+        });
+
+        AFRAME.registerComponent('gaze-tracker-scene2', {
+            schema: { target: { type: 'string' } },
+            init: function () {
+                let el = this.el;
+                let target = this.data.target;
+                let startTime = 0;
+                
+                // Store total and longest time separately for both planes
+                if (!window.gazeData_scene2) {
+                    window.gazeData_scene2 = {
+                        mosiac_tiles: { totalTime: 0, longestTime: 0 },
+                        wood_carvings: { totalTime: 0, longestTime: 0 }
+                    };
+                }
+                
+                el.addEventListener('mouseenter', () => {
+                    startTime = Date.now();
+                });
+                
+                el.addEventListener('mouseleave', () => {
+                    let gazeDuration = (Date.now() - startTime) / 1000; // Convert to seconds
+                    let data = window.gazeData_scene2[target];
+                    data.totalTime += gazeDuration;
+                    if (gazeDuration > data.longestTime) {
+                        data.longestTime = gazeDuration;
+                    }
+                    updateOutput();
+                });
+                
+                function updateOutput() {
+                    let outputText = document.querySelector('#output_scene2');
+                    if (outputText) {
+                        outputText.setAttribute('value', 
+                            `Mosaic Tiles: Total ${window.gazeData_scene2.mosiac_tiles.totalTime.toFixed(2)}s, Longest ${window.gazeData_scene2.mosiac_tiles.longestTime.toFixed(2)}s\n` +
+                            `Wood Carvings: Total ${window.gazeData_scene2.wood_carvings.totalTime.toFixed(2)}s, Longest ${window.gazeData_scene2.wood_carvings.longestTime.toFixed(2)}s`
+                        );
+                    }
+                }
+            }
+        });
+
+        document.querySelector('#mosiac_tiles').setAttribute('gaze-tracker-scene2', 'target: mosiac_tiles');
+        document.querySelector('#wood_carvings').setAttribute('gaze-tracker-scene2', 'target: wood_carvings');
+
+     </script>
 </body>
 </html>
