@@ -64,85 +64,82 @@
     </a-scene>
 
     <script>
-        let totalStareTime = { main_entrance: 0, roof_sculpture: 0 };
-        let longestStareTime = { main_entrance: 0, roof_sculpture: 0 };
-        let reactionTime = { main_entrance: null, roof_sculpture: null };
-        let startTime, audio1StartTime, audio2StartTime;
-        let currentPlane = null, stareStart = null;
-
-        // Countdown before showing the start button
         AFRAME.registerComponent('start-button-delay', {
             init: function () {
                 const textEntity = document.querySelector('#button-text');
                 const buttonBg = document.querySelector('#button-bg');
-
-                let countdown = 10;
+    
+                let countdown = 10;  // Countdown updated to 10 sec
                 const interval = setInterval(() => {
                     countdown--;
                     if (countdown > 0) {
-                        textEntity.setAttribute('text', 'value: Starts in... ' + countdown + 's; align: center; color: white; width: 4');
+                        textEntity.setAttribute('text', `value: Starts in... ${countdown}s; align: center; color: white; width: 4`);
                     } else {
                         clearInterval(interval);
                         textEntity.setAttribute('text', 'value: START; align: center; color: white; width: 4');
                         buttonBg.setAttribute('visible', true);
-
+    
                         buttonBg.addEventListener('click', function () {
+                            startScene();
                             document.getElementById('scene1').setAttribute('visible', true);
                             document.getElementById('intro').setAttribute('visible', false);
-                            startScene();
-                        });                        
+                        });
                     }
                 }, 1000);
             }
         });
-
+    
+        let totalStareTime = { main_entrance: 0, roof_sculpture: 0 };
+        let longestStareTime = { main_entrance: 0, roof_sculpture: 0 };
+        let reactionTime = { main_entrance: null, roof_sculpture: null };
+        let audio1StartTime, audio2StartTime;
+        let currentPlane = null, stareStart = null;
+    
         function startScene() {
             setTimeout(() => {
                 audio1StartTime = performance.now();
                 document.getElementById('audio1').play();
             }, 3000);
-
+    
             setTimeout(() => {
                 audio2StartTime = performance.now();
                 document.getElementById('audio2').play();
             }, 62000);
         }
-
-        AFRAME.registerComponent('gaze-tracker', {
-            schema: { target: { type: 'string' } },
-            init: function () {
-                let el = this.el;
-                let target = this.data.target;
-
-                el.addEventListener('raycaster-intersected', (event) => {
-                    if (!stareStart) {
-                        currentPlane = target;
-                        stareStart = performance.now();
-
-                        // Reaction Time Calculation (Only first time)
-                        if (target === "main_entrance" && reactionTime.main_entrance === null && audio1StartTime) {
-                            reactionTime.main_entrance = (performance.now() - audio1StartTime) / 1000;
-                        }
-                        if (target === "roof_sculpture" && reactionTime.roof_sculpture === null && audio2StartTime) {
-                            reactionTime.roof_sculpture = (performance.now() - audio2StartTime) / 1000;
-                        }
+    
+        function setupGazeTracking(id) {
+            let el = document.getElementById(id);
+    
+            el.addEventListener('raycaster-intersected', () => {
+                if (!stareStart) {
+                    currentPlane = id;
+                    stareStart = performance.now();
+    
+                    // Reaction Time Calculation (Only Set Once)
+                    if (id === "main_entrance" && reactionTime.main_entrance === null && audio1StartTime) {
+                        reactionTime.main_entrance = (performance.now() - audio1StartTime) / 1000;
                     }
-                });
-
-                el.addEventListener('raycaster-intersected-cleared', () => {
-                    if (currentPlane === target && stareStart !== null) {
-                        let stareDuration = (performance.now() - stareStart) / 1000;
-                        totalStareTime[target] += stareDuration;
-                        longestStareTime[target] = Math.max(longestStareTime[target], stareDuration);
-                        stareStart = null;
+                    if (id === "roof_sculpture" && reactionTime.roof_sculpture === null && audio2StartTime) {
+                        reactionTime.roof_sculpture = (performance.now() - audio2StartTime) / 1000;
                     }
-                });
-            }
+                }
+            });
+    
+            el.addEventListener('raycaster-intersected-cleared', () => {
+                if (currentPlane === id && stareStart !== null) {
+                    let stareDuration = (performance.now() - stareStart) / 1000;
+                    totalStareTime[id] += stareDuration;
+                    longestStareTime[id] = Math.max(longestStareTime[id], stareDuration);
+                    stareStart = null;
+                }
+            });
+        }
+    
+        document.addEventListener('DOMContentLoaded', () => {
+            setupGazeTracking('main_entrance');
+            setupGazeTracking('roof_sculpture');
         });
-
-        document.getElementById('main_entrance').setAttribute('gaze-tracker', 'target: main_entrance');
-        document.getElementById('roof_sculpture').setAttribute('gaze-tracker', 'target: roof_sculpture');
-
+    
         function updateDebugText() {
             document.getElementById('debugText').setAttribute('text', `value: 
                 Main Entrance - Total: ${totalStareTime.main_entrance.toFixed(2)}s, Longest: ${longestStareTime.main_entrance.toFixed(2)}s, Reaction: ${reactionTime.main_entrance ? reactionTime.main_entrance.toFixed(2) + 's' : 'N/A'}
@@ -150,8 +147,9 @@
             `);
             requestAnimationFrame(updateDebugText);
         }
-
+    
         updateDebugText();
     </script>
+    
 </body>
 </html>
