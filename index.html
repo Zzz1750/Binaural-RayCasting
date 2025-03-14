@@ -10,23 +10,25 @@
   <a-scene>
     <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
 
-    <a-entity id="right-hand" laser-controls="hand: right" position="0 1.6 -1"></a-entity>
+    <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
 
     <a-box id="start_scene2"
-           position="0 1.5 -2"
-           color="#4CC3D9"
-           depth="0.2"
-           height="0.5"
-           width="1"
-           class="clickable">
-
-           <a-text value="Start Scene 2"
-              align="center"
-              color="black"
-              position="0 0 0.11"
-              width="2">
-      </a-text>
+       position="0 1.5 -2"
+       color="#4CC3D9"
+       depth="0.2"
+       height="0.5"
+       width="1"
+       class="clickable"
+       event-set__enter="_event: mouseenter; color: #1E90FF"
+       event-set__leave="_event: mouseleave; color: #4CC3D9">
+        <a-text value="Start Scene 2"
+            align="center"
+            color="black"
+            position="0 0 0.11"
+            width="2">
+        </a-text>
     </a-box>
+
 
     <a-entity camera position="0 1.6 0"></a-entity>
   </a-scene>
@@ -51,10 +53,22 @@
  
  <script>
     var start_scene2 = document.getElementById('start_scene2');
+    var rightHand = document.getElementById('right-hand');
+    
     start_scene2.addEventListener('click', function() {
         document.getElementById('myscene2').style.display = 'block';
-        start_scene2.style.display='none';
+        start_scene2.style.display = 'none';
     });
+    
+    // VR controller click support
+    rightHand.addEventListener('selectstart', function () {
+        let intersectedEl = rightHand.components.raycaster.intersectedEls[0];
+        if (intersectedEl && intersectedEl.id === "start_scene2") {
+            document.getElementById('myscene2').style.display = 'block';
+            start_scene2.style.display = 'none';
+        }
+    });
+    
     AFRAME.registerComponent('gaze-tracker-scene2', {
         schema: { target: { type: 'string' } },
         init: function () {
