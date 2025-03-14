@@ -7,125 +7,24 @@
   </style>
 </head>
 <body>
-  <a-scene id="scene1">
+  <a-scene>
     <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
 
-    <a-entity id="cameraRig" position="0 1.6 0">
-        <a-entity id="camera" camera position="0 0 0" look-controls>
-            <a-cursor fuse="true" fuse-timeout="1000"></a-cursor>
-        </a-entity>
-    
-        <!-- Right-hand controller attached to the camera rig -->
-        <a-entity id="right-hand"
-                  laser-controls="hand: right"
-                  raycaster="objects: .clickable"
-                  position="0 -0.5 -0.5"
-                  oculus-touch-controls="hand: right">
-        </a-entity>
-    </a-entity>
-    
-    <a-box id="start_scene2"
-       position="0 1.5 -2"
-       color="#4CC3D9"  
-       depth="0.2"
-       height="0.5"
-       width="1"
-       class="clickable"
-       event-set__enter="_event: mouseenter; color: #1E90FF"
-       event-set__leave="_event: mouseleave; color: #4CC3D9">
-        <a-text value="Start Scene 2"
-            align="center"
-            color="black"
-            position="0 0 0.11"
-            width="2">
-        </a-text>
-    </a-box>
+    <a-entity id="right-hand" laser-controls="hand: right" position="0 1.6 -1"></a-entity>
 
+    <a-box id="myButton"
+           position="0 1.5 -2"
+           color="#4CC3D9"
+           depth="0.2"
+           height="0.5"
+           width="1"
+           class="clickable">
+    </a-box>
 
     <a-entity camera position="0 1.6 0"></a-entity>
   </a-scene>
 
 
-
-  <!-- Scene2 -->
-    <div id="myscene2" style="display:none">
-        <a-scene>
-            <a-sky src="./images/1.png"></a-sky>
-            <a-entity camera look-controls position="0 1.6 3">
-                <a-cursor id="cursor" fuse="true" fuse-timeout="1000"></a-cursor>
-            </a-entity>
-            <a-plane id="mosiac_tiles" position="5 -3 2" rotation="-90 0 0" width="10" height="25" color="yellow" opacity="0.6"></a-plane>
-            <a-plane id="wood_carvings" position="5.5 5 3.2" rotation="90 0 0" width="3" height="3.5" color="#800080" material="opacity: 0.5; transparent: true"></a-plane>
-            <a-text id="output_scene2" position="0 3 -2" color="black" value="Tracking gaze..." wrap-count="40" width="3"></a-text>
-            <a-sound id="audio_4" src="./IMAGE_2_ROI_1.wav" autoplay="false"></a-sound>
-            <a-sound id="audio_3" src="./IMAGE_2_ROI_2.wav" autoplay="false"></a-sound>
-        </a-scene>
-    </div>
-
- 
- <script>
-    var start_scene2 = document.getElementById('start_scene2');
-    var rightHand = document.getElementById('right-hand');
-    
-    start_scene2.addEventListener('click', function() {
-        document.getElementById('myscene2').style.display = 'block';
-        document.getElementById('scene1').style.display='none';
-    });
-    
-    // VR controller click support
-    rightHand.addEventListener('selectstart', function () {
-        let intersectedEl = rightHand.components.raycaster.intersectedEls[0];
-        if (intersectedEl && intersectedEl.id === "start_scene2") {
-            document.getElementById('myscene2').style.display = 'block';
-            document.getElementById('scene1').style.display='none';
-        }
-    });
-    
-    AFRAME.registerComponent('gaze-tracker-scene2', {
-        schema: { target: { type: 'string' } },
-        init: function () {
-            let el = this.el;
-            let target = this.data.target;
-            let startTime = 0;
-            
-            // Store total and longest time separately for both planes
-            if (!window.gazeData_scene2) {
-                window.gazeData_scene2 = {
-                    mosiac_tiles: { totalTime: 0, longestTime: 0 },
-                    wood_carvings: { totalTime: 0, longestTime: 0 }
-                };
-            }
-            
-            el.addEventListener('mouseenter', () => {
-                startTime = Date.now();
-            });
-            
-            el.addEventListener('mouseleave', () => {
-                let gazeDuration = (Date.now() - startTime) / 1000; // Convert to seconds
-                let data = window.gazeData_scene2[target];
-                data.totalTime += gazeDuration;
-                if (gazeDuration > data.longestTime) {
-                    data.longestTime = gazeDuration;
-                }
-                updateOutput();
-            });
-            
-            function updateOutput() {
-                let outputText = document.querySelector('#output_scene2');
-                if (outputText) {
-                    outputText.setAttribute('value', 
-                        `Mosaic Tiles: Total ${window.gazeData_scene2.mosiac_tiles.totalTime.toFixed(2)}s, Longest ${window.gazeData_scene2.mosiac_tiles.longestTime.toFixed(2)}s\n` +
-                        `Wood Carvings: Total ${window.gazeData_scene2.wood_carvings.totalTime.toFixed(2)}s, Longest ${window.gazeData_scene2.wood_carvings.longestTime.toFixed(2)}s`
-                    );
-                }
-            }
-        }
-    });
-    
-    document.querySelector('#mosiac_tiles').setAttribute('gaze-tracker-scene2', 'target: mosiac_tiles');
-    document.querySelector('#wood_carvings').setAttribute('gaze-tracker-scene2', 'target: wood_carvings');
-    
-    
- </script>
+  
 </body>
 </html>
