@@ -35,6 +35,7 @@
             <a-sky src="./images/intro.jpg"></a-sky>
             <a-plane id="scene1-button" position="0 1.5 -3" width="1" height="0.5" color="white" visible="false"
                 class="clickable"
+                material="opacity: 1"
                 text="value: Scene 1; align: center; width: 5; color: black;"
                 event-set__enter="_event: mouseenter; material.opacity: 0.7"
                 event-set__leave="_event: mouseleave; material.opacity: 1">
@@ -95,7 +96,10 @@
                     // Show "Scene 1" button after audio ends
                     setTimeout(() => {
                         scene1Button.setAttribute("visible", "true");
-                        scene1Button.classList.add("clickable"); // Ensure it's clickable
+                        scene1Button.classList.add("clickable");
+
+                        // Refresh raycaster targets after showing the button
+                        document.querySelector('#right-hand').components.raycaster.refreshObjects();
                     }, 24000);
                 }
 
