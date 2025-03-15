@@ -40,6 +40,31 @@
                 text="value: Scene 1; align: center; width: 5; color: black;">
             </a-plane>
         </a-entity>
+
+
+
+        <!-- Scene 1 (Initially Hidden) -->
+        <a-entity id="scene-1" visible="false">
+            <a-sky src="./images/scene1.jpg"></a-sky>
+
+            <a-plane id="main_entrance" position="-2 1.5 -3" width="2" height="1" color="blue" class="gaze-plane"
+                text="value: Main Entrance; align: center; width: 5; color: white;">
+            </a-plane>
+
+            <a-plane id="roof_sculpture" position="2 2 -3" width="2" height="1" color="green" class="gaze-plane"
+                text="value: Roof Sculpture; align: center; width: 5; color: white;">
+            </a-plane>
+
+            <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto"></audio>
+            <audio id="roof_sculpture_audio" src="./audio/roof_sculpture.wav" preload="auto"></audio>
+
+            <a-plane id="scene2-button" position="0 1.5 -3" width="1" height="0.5" color="white" visible="false"
+                class="clickable"
+                text="value: To Scene 2; align: center; width: 5; color: black;">
+            </a-plane>
+        </a-entity>
+
+
     </a-scene>
 
     <script>
@@ -93,6 +118,78 @@
             this.setAttribute("material", "opacity: 1");
         });
     </script>
+
+
+    <script>
+        let scene1 = document.getElementById("scene-1");
+        let scene2Button = document.getElementById("scene2-button");
+    
+        let mainEntranceAudio = document.getElementById("main_entrance_audio");
+        let roofSculptureAudio = document.getElementById("roof_sculpture_audio");
+    
+        let gazeData = { main_entrance: { total: 0, longest: 0 }, roof_sculpture: { total: 0, longest: 0 } };
+        let reactionTimes = { main_entrance: null, roof_sculpture: null };
+    
+        let currentGazeStart = null;
+        let currentPlane = null;
+    
+        // Use existing scene1Button variable
+        scene1Button.addEventListener("click", function () {
+            introScene.setAttribute("visible", "false");
+            scene1.setAttribute("visible", "true");
+    
+            // Play Main Entrance audio immediately
+            mainEntranceAudio.play();
+            reactionTimes.main_entrance = performance.now(); // Start reaction timer
+    
+            // Play Roof Sculpture audio after 63s
+            setTimeout(() => {
+                roofSculptureAudio.play();
+                reactionTimes.roof_sculpture = performance.now();
+            }, 63000);
+    
+            // Show Scene 2 button after 103s
+            setTimeout(() => {
+                scene2Button.setAttribute("visible", "true");
+            }, 103000);
+        });
+    
+        // Head Gaze Tracking
+        document.querySelectorAll(".gaze-plane").forEach(plane => {
+            plane.addEventListener("mouseenter", function () {
+                currentGazeStart = performance.now();
+                currentPlane = this.id;
+    
+                // Calculate reaction time
+                if (reactionTimes[currentPlane]) {
+                    reactionTimes[currentPlane] = performance.now() - reactionTimes[currentPlane];
+                }
+            });
+    
+            plane.addEventListener("mouseleave", function () {
+                if (currentGazeStart) {
+                    let gazeDuration = performance.now() - currentGazeStart;
+                    gazeData[currentPlane].total += gazeDuration;
+    
+                    if (gazeDuration > gazeData[currentPlane].longest) {
+                        gazeData[currentPlane].longest = gazeDuration;
+                    }
+    
+                    currentGazeStart = null;
+                }
+            });
+        });
+    
+        // Button Hover Effect
+        scene2Button.addEventListener("mouseenter", function () {
+            this.setAttribute("material", "opacity: 0.7");
+        });
+        scene2Button.addEventListener("mouseleave", function () {
+            this.setAttribute("material", "opacity: 1");
+        });
+    
+    </script>
+    
 
 </body>
 </html>
