@@ -25,57 +25,40 @@
     <a-scene id="vr-scene" vr-mode-ui="enabled: true">
         <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
 
-        <!-- Head Raycasting -->
-        <a-entity id="camera" camera position="0 1.6 0" look-controls>
-            <a-entity id="gaze" cursor="fuse: true; fuseTimeout: 1000"
-                      position="0 0 -1" geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
-                      material="color: white; shader: flat"></a-entity>
-        </a-entity>
-
         <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
             <a-sky src="./images/intro.jpg"></a-sky>
-            
-            <!-- Intro Audio -->
-            <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
+            <a-sound id="intro-audio" src="./audio/intro.wav" autoplay="true"></a-sound>
+            <a-plane id="scene1-button" visible="false" position="0 1.5 -3" width="1.5" height="0.5" color="white" class="clickable"
+                     text="value: Scene 1; align: center; width: 5; color: black;"></a-plane>
+        </a-entity>
 
-            <!-- Scene 1 Button (Hidden Initially) -->
-            <a-plane id="scene1-button" position="0 1.6 -3" width="1" height="0.5" 
-                     color="white" class="clickable" visible="false"
-                     text="value: Scene 1; align: center; width: 5; color: black;"
-                     event-set__mouseenter="material.opacity: 0.5"
-                     event-set__mouseleave="material.opacity: 1"
-                     onclick="showScene('scene-1')">
-            </a-plane>
+        <!-- Scene 1 -->
+        <a-entity id="scene-1" visible="false">
+            <a-sky src="./images/1.png"></a-sky>
+            <a-plane id="main_entrance" position="-1 1.5 -3" width="2" height="2" color="red" class="clickable"
+                     text="value: Main Entrance; align: center; width: 5; color: black;"></a-plane>
+            <a-plane id="roof_sculpture" position="1 2 -3" width="2" height="2" color="green" class="clickable"
+                     text="value: Roof Sculpture; align: center; width: 5; color: black;"></a-plane>
+
+            <a-sound id="audio_main_entrance" src="./audio/main_entrance.wav"></a-sound>
+            <a-sound id="audio_roof_sculpture" src="./audio/roof_sculpture.wav"></a-sound>
         </a-entity>
     </a-scene>
 
     <script>
+        let reactionTimes = {};
+        let reactionStart = {};
+
         function startVR() {
             let name = document.getElementById("username").value;
             if (name.trim() !== "") {
                 document.getElementById("name-form").style.display = "none";
-
-                const sceneEl = document.getElementById("vr-scene");
                 document.getElementById("intro-scene").setAttribute("visible", "true");
 
-                // Play intro audio
-                let audio = document.getElementById("intro-audio");
-                audio.play();
-
-                // Show Scene 1 button after 24 seconds
                 setTimeout(() => {
                     document.getElementById("scene1-button").setAttribute("visible", "true");
-                }, 24000);
-
-                // Auto enter VR mode
-                if (sceneEl.hasLoaded) {
-                    sceneEl.enterVR();
-                } else {
-                    sceneEl.addEventListener("loaded", () => {
-                        sceneEl.enterVR();
-                    });
-                }
+                }, 24000); // Show button after 24s
             } else {
                 alert("Please enter your name");
             }
@@ -84,6 +67,26 @@
         function showScene(sceneId) {
             document.getElementById("intro-scene").setAttribute("visible", "false");
             document.getElementById(sceneId).setAttribute("visible", "true");
+
+            if (sceneId === "scene-1") {
+                playAudioWithReaction("main_entrance", "audio_main_entrance", 0);
+                playAudioWithReaction("roof_sculpture", "audio_roof_sculpture", 63000);
+            }
+        }
+
+        function playAudioWithReaction(planeId, audioId, delay) {
+            setTimeout(() => {
+                let audioEl = document.getElementById(audioId);
+                audioEl.components.sound.playSound();
+                reactionStart[planeId] = Date.now();
+
+                document.getElementById(planeId).addEventListener("mouseenter", () => {
+                    if (!reactionTimes[planeId]) {
+                        reactionTimes[planeId] = Date.now() - reactionStart[planeId];
+                        console.log(`${planeId} reaction time: ${reactionTimes[planeId]}ms`);
+                    }
+                });
+            }, delay);
         }
     </script>
 
