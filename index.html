@@ -23,24 +23,6 @@
                          text="value: Start; align: center; width: 5; color: black;" onclick="showScene('scene-1')"></a-plane>
             </a-entity>
         </a-entity>
-
-        <!-- Scene 1 -->
-        <a-entity id="scene-1" visible="false">
-            <a-sky src="images/1.png"></a-sky>
-            <a-plane id="main_entrance" position="-1 1.5 -3" width="2" height="2" color="rgba(255, 0, 0, 0.5)"
-                     class="clickable" text="value: Main Entrance; align: center; width: 5; color: black;"></a-plane>
-            <a-plane id="roof_sculpture" position="1 2 -3" width="2" height="2" color="rgba(0, 255, 0, 0.5)"
-                     class="clickable" text="value: Roof Sculpture; align: center; width: 5; color: black;"></a-plane>
-        </a-entity>
-
-        <!-- Scene 2 -->
-        <a-entity id="scene-2" visible="false">
-            <a-sky src="images/2.png"></a-sky>
-            <a-plane id="mosaic_tiles" position="-1 1.5 -3" width="2" height="2" color="rgba(0, 0, 255, 0.5)"
-                     class="clickable" text="value: Mosaic Tiles; align: center; width: 5; color: black;"></a-plane>
-            <a-plane id="wood_carvings" position="1 2 -3" width="2" height="2" color="rgba(255, 255, 0, 0.5)"
-                     class="clickable" text="value: Wood Carvings; align: center; width: 5; color: black;"></a-plane>
-        </a-entity>
     </a-scene>
 
     <script>
@@ -51,18 +33,11 @@
                 document.getElementById("name-form").style.display = "none";
                 document.getElementById("vr-scene").style.display = "block";
                 document.getElementById("intro-scene").setAttribute("visible", "true");
-    
-                let scene = document.querySelector("a-scene");
-                if (scene && scene.enterVR) {
-                    setTimeout(() => {
-                        scene.enterVR(); // Force VR mode after a small delay
-                    }, 500);
-                }
             } else {
                 alert("Please enter your name");
             }
         }
-    
+
         function showScene(sceneId) {
             document.getElementById("intro-scene").setAttribute("visible", "false");
             document.getElementById(sceneId).setAttribute("visible", "true");
