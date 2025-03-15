@@ -12,9 +12,6 @@
             padding: 20px;
             border-radius: 10px;
         }
-        .hovered {
-            opacity: 0.7; /* Dim effect on hover */
-        }
     </style>
 </head>
 <body>
@@ -32,18 +29,19 @@
         <!-- Preload Audio (Hidden) -->
         <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
 
-        <!-- Intro Scene (Initially Hidden) -->
+        <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
             <a-sky src="./images/intro.jpg"></a-sky>
             <a-plane id="scene1-button" position="0 1.5 -3" width="1" height="0.5" color="white" visible="false"
                 class="clickable"
-                text="value: Scene 1; align: center; width: 5; color: black;">
+                text="value: Scene 1; align: center; width: 5; color: black;"
+                event-set__enter="_event: mouseenter; material.opacity: 0.7"
+                event-set__leave="_event: mouseleave; material.opacity: 1"
+                onclick="goToScene1()">
             </a-plane>
         </a-entity>
 
-
-
-        <!-- Scene 1 (Initially Hidden) -->
+        <!-- Scene 1 -->
         <a-entity id="scene-1" visible="false">
             <a-sky src="./images/1.png"></a-sky>
         
@@ -58,12 +56,13 @@
             <!-- Display Gaze Data -->
             <a-entity id="gaze-data-display" position="-1 2 -2" text="value: Loading...; align: center; color: white; width: 2;"></a-entity>
         
-            <!-- Scene 2 Button (Hidden Initially) -->
+            <!-- Scene 2 Button -->
             <a-plane id="scene2-button" class="clickable" position="0 -1 -2" width="1" height="0.5" color="red" visible="false"
-                text="value: To Scene 2; align: center; color: white;">
+                text="value: To Scene 2; align: center; color: white;"
+                event-set__enter="_event: mouseenter; material.opacity: 0.7"
+                event-set__leave="_event: mouseleave; material.opacity: 1">
             </a-plane>
         </a-entity>
-
 
     </a-scene>
 
@@ -77,11 +76,11 @@
             let name = document.getElementById("username").value;
             if (name.trim() !== "") {
                 document.getElementById("name-form").style.display = "none";
-        
+
                 function showIntroScene() {
                     introScene.setAttribute("visible", "true");
                     introAudio.play();
-        
+
                     // Auto-enter VR
                     if (sceneEl.hasLoaded) {
                         sceneEl.enterVR();
@@ -90,34 +89,15 @@
                             sceneEl.enterVR();
                         });
                     }
-        
+
                     // Show "Scene 1" button after audio ends
                     setTimeout(() => {
                         scene1Button.setAttribute("visible", "true");
-        
-                        // Attach event listener here (after it's visible)
-                        scene1Button.addEventListener("click", function () {
-                            introScene.setAttribute("visible", "false");
-                            scene1.setAttribute("visible", "true");
-        
-                            // Play Main Entrance audio immediately
-                            mainEntranceAudio.play();
-                            reactionTimes.main_entrance = performance.now();
-        
-                            // Play Roof Sculpture audio after 63s
-                            setTimeout(() => {
-                                roofSculptureAudio.play();
-                                reactionTimes.roof_sculpture = performance.now();
-                            }, 63000);
-        
-                            // Show Scene 2 button after 103s
-                            setTimeout(() => {
-                                scene2Button.setAttribute("visible", "true");
-                            }, 103000);
-                        });
+                        scene1Button.setAttribute("class", "clickable");
+                        sceneEl.components.raycaster.refreshObjects(); // Refresh raycaster objects
                     }, 24000);
                 }
-        
+
                 if (introAudio.readyState >= 3) { 
                     showIntroScene(); 
                 } else {
@@ -128,100 +108,74 @@
                 alert("Please enter your name");
             }
         }
-        
 
-        // Button Hover Effect
-        scene1Button.addEventListener("mouseenter", function() {
-            this.setAttribute("material", "opacity: 0.7");
-        });
-        scene1Button.addEventListener("mouseleave", function() {
-            this.setAttribute("material", "opacity: 1");
-        });
+        function goToScene1() {
+            introScene.setAttribute("visible", "false");
+            scene1.setAttribute("visible", "true");
+
+            mainEntranceAudio.play();
+            reactionTimes.main_entrance = performance.now();
+
+            setTimeout(() => {
+                roofSculptureAudio.play();
+                reactionTimes.roof_sculpture = performance.now();
+            }, 63000);
+
+            setTimeout(() => {
+                scene2Button.setAttribute("visible", "true");
+            }, 103000);
+        }
     </script>
 
     <script>
         let scene1 = document.getElementById("scene-1");
         let scene2Button = document.getElementById("scene2-button");
         let gazeDisplay = document.getElementById("gaze-data-display");
-    
+
         let mainEntranceAudio = document.getElementById("main_entrance_audio");
         let roofSculptureAudio = document.getElementById("roof_sculpture_audio");
-    
+
         let gazeData = { main_entrance: { total: 0, longest: 0 }, roof_sculpture: { total: 0, longest: 0 } };
         let reactionTimes = { main_entrance: null, roof_sculpture: null };
-    
+
         let currentGazeStart = null;
         let currentPlane = null;
-    
-        // Scene 1 Button Click
-        scene1Button.addEventListener("click", function () {
-            introScene.setAttribute("visible", "false");
-            scene1.setAttribute("visible", "true");
-    
-            // Play Main Entrance audio immediately
-            mainEntranceAudio.play();
-            reactionTimes.main_entrance = performance.now();
-    
-            // Play Roof Sculpture audio after 63s
-            setTimeout(() => {
-                roofSculptureAudio.play();
-                reactionTimes.roof_sculpture = performance.now();
-            }, 63000);
-    
-            // Show Scene 2 button after 103s
-            setTimeout(() => {
-                scene2Button.setAttribute("visible", "true");
-            }, 103000);
-        });
-    
+
         // Head Gaze Tracking
         document.querySelectorAll(".gaze-plane").forEach(plane => {
             plane.addEventListener("mouseenter", function () {
                 currentGazeStart = performance.now();
                 currentPlane = this.id;
-    
-                // Calculate reaction time
+
                 if (reactionTimes[currentPlane]) {
                     reactionTimes[currentPlane] = performance.now() - reactionTimes[currentPlane];
                 }
-    
+
                 updateGazeDisplay();
             });
-    
+
             plane.addEventListener("mouseleave", function () {
                 if (currentGazeStart) {
                     let gazeDuration = performance.now() - currentGazeStart;
                     gazeData[currentPlane].total += gazeDuration;
-    
+
                     if (gazeDuration > gazeData[currentPlane].longest) {
                         gazeData[currentPlane].longest = gazeDuration;
                     }
-    
+
                     currentGazeStart = null;
                     updateGazeDisplay();
                 }
             });
         });
-    
-        // Update Live Display
+
         function updateGazeDisplay() {
             gazeDisplay.setAttribute("text", "value: " +
                 `Main Entrance:\n Total: ${(gazeData.main_entrance.total / 1000).toFixed(1)}s \n Longest: ${(gazeData.main_entrance.longest / 1000).toFixed(1)}s \n Reaction: ${(reactionTimes.main_entrance / 1000).toFixed(1)}s\n\n` +
                 `Roof Sculpture:\n Total: ${(gazeData.roof_sculpture.total / 1000).toFixed(1)}s \n Longest: ${(gazeData.roof_sculpture.longest / 1000).toFixed(1)}s \n Reaction: ${(reactionTimes.roof_sculpture / 1000).toFixed(1)}s`
             );
         }
-    
-        // Button Hover Effect
-        scene2Button.addEventListener("mouseenter", function () {
-            this.setAttribute("material", "opacity: 0.7");
-        });
-        scene2Button.addEventListener("mouseleave", function () {
-            this.setAttribute("material", "opacity: 1");
-        });
-    
     </script>
-    
-    
 
 </body>
 </html>
