@@ -23,8 +23,9 @@
         <button style="color: black;" onclick="startVR()">Submit</button>
     </div>
 
-    <a-scene id="vr-scene" vr-mode-ui="enabled: true" raycaster="showLine: true;">
-        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable; showLine: true;"></a-entity>
+    <a-scene id="vr-scene" vr-mode-ui="enabled: true">
+        <!-- Right Hand Controller -->
+        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable;"></a-entity>
 
         <!-- Preload Audio (Hidden) -->
         <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
@@ -36,8 +37,7 @@
                 class="clickable"
                 text="value: Scene 1; align: center; width: 5; color: black;"
                 event-set__enter="_event: mouseenter; material.opacity: 0.7"
-                event-set__leave="_event: mouseleave; material.opacity: 1"
-                event-set__click="_event: click; _target: #scene1-button; _delay: 0; _call: goToScene1">
+                event-set__leave="_event: mouseleave; material.opacity: 1">
             </a-plane>
         </a-entity>
 
@@ -96,7 +96,6 @@
                     setTimeout(() => {
                         scene1Button.setAttribute("visible", "true");
                         scene1Button.classList.add("clickable"); // Ensure it's clickable
-                        sceneEl.components.raycaster.refreshObjects(); // Refresh raycaster objects
                     }, 24000);
                 }
 
@@ -130,6 +129,9 @@
                 scene2Button.setAttribute("visible", "true");
             }, 103000);
         }
+
+        // Fix: Right-hand controller clicking "Scene 1" button
+        scene1Button.addEventListener("click", goToScene1);
     </script>
 
     <script>
