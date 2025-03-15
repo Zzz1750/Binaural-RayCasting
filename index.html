@@ -23,26 +23,27 @@
         <button style="color: black;" onclick="startVR()">Submit</button>
     </div>
 
+    <!-- VR Scene -->
     <a-scene id="vr-scene" vr-mode-ui="enabled: true">
-        <!-- Right Hand Controller for Clicking -->
-        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
+        
+        <!-- Right Hand Controller -->
+        <a-entity id="right-hand" laser-controls="hand: right" 
+                  raycaster="objects: .clickable; showLine: true; lineColor: red;">
+        </a-entity>
+
+        <!-- Head Gaze Raycaster -->
+        <a-entity camera look-controls>
+            <a-entity id="head-gaze" raycaster="objects: .gaze-track; interval: 500" cursor="fuse: false;"></a-entity>
+        </a-entity>
 
         <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
             <a-sky src="./images/intro.jpg"></a-sky>
-            <!-- Start Scene 1 Button -->
-            <a-plane id="start-button" position="0 1.5 -2" width="1" height="0.5" color="white"
-                     text="value: Start Scene 1; align: center; width: 3; color: black;"
-                     class="clickable" 
-                     onclick="showScene('scene-1')"
-                     event-set__hoveron="material.color: blue"
-                     event-set__hoveroff="material.color: white">
-            </a-plane>
-        </a-entity>
 
-        <!-- Scene 1 -->
-        <a-entity id="scene-1" visible="false">
-            <a-sky src="./images/1.png"></a-sky>
+            <!-- Start Button -->
+            <a-plane id="start-button" position="0 1.5 -3" width="1" height="0.5" color="white" 
+                     class="clickable gaze-track" text="value: Start; align: center; width: 5; color: black;">
+            </a-plane>
         </a-entity>
     </a-scene>
 
@@ -54,16 +55,25 @@
 
                 const sceneEl = document.getElementById("vr-scene");
                 document.getElementById("intro-scene").setAttribute("visible", "true");
+
+                if (sceneEl.hasLoaded) {
+                    sceneEl.enterVR();
+                } else {
+                    sceneEl.addEventListener("loaded", () => {
+                        sceneEl.enterVR();
+                    });
+                }
             } else {
                 alert("Please enter your name");
             }
         }
 
-        function showScene(sceneId) {
-            document.getElementById("intro-scene").setAttribute("visible", "false");
-            document.getElementById(sceneId).setAttribute("visible", "true");
-        }
-    </script>
+        // Button Hover Effect (Change Color on Hover)
+        document.querySelectorAll(".clickable").forEach(btn => {
+            btn.addEventListener("mouseenter", () => btn.setAttribute("color", "yellow"));
+            btn.addEventListener("mouseleave", () => btn.setAttribute("color", "white"));
+        });
 
+    </script>
 </body>
 </html>
