@@ -51,20 +51,21 @@
                 document.getElementById("name-form").style.display = "none";
                 document.getElementById("vr-scene").style.display = "block";
                 document.getElementById("intro-scene").setAttribute("visible", "true");
-                
+    
                 let scene = document.querySelector("a-scene");
-                if (scene.requestFullscreen) {
-                    scene.requestFullscreen();
+                if (scene && scene.enterVR) {
+                    scene.enterVR(); // Enter VR mode directly
                 }
             } else {
                 alert("Please enter your name");
             }
         }
-
+    
         function showScene(sceneId) {
             document.getElementById("intro-scene").setAttribute("visible", "false");
             document.getElementById(sceneId).setAttribute("visible", "true");
         }
     </script>
+    
 </body>
 </html>
