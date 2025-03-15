@@ -28,7 +28,7 @@
         <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
             <a-sky src="./images/intro.jpg"></a-sky>
-            <a-sound id="intro-audio" src="./audio/intro.wav"></a-sound>
+            <a-sound id="intro-audio" src="./audio/intro.wav" preload="auto"></a-sound>
             <a-plane id="scene1-button" visible="false" position="0 1.5 -3" width="1.5" height="0.5" color="white" class="clickable"
                      text="value: Scene 1; align: center; width: 5; color: black;"></a-plane>
         </a-entity>
@@ -41,8 +41,8 @@
             <a-plane id="roof_sculpture" position="1 2 -3" width="2" height="2" color="green" class="clickable"
                      text="value: Roof Sculpture; align: center; width: 5; color: black;"></a-plane>
 
-            <a-sound id="audio_main_entrance" src="./audio/main_entrance.wav"></a-sound>
-            <a-sound id="audio_roof_sculpture" src="./audio/roof_sculpture.wav"></a-sound>
+            <a-sound id="audio_main_entrance" src="./audio/main_entrance.wav" preload="auto"></a-sound>
+            <a-sound id="audio_roof_sculpture" src="./audio/roof_sculpture.wav" preload="auto"></a-sound>
         </a-entity>
     </a-scene>
 
