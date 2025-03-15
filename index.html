@@ -28,7 +28,7 @@
         <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
             <a-sky src="./images/intro.jpg"></a-sky>
-            <a-sound id="intro-audio" src="./audio/intro.wav" autoplay="true"></a-sound>
+            <a-sound id="intro-audio" src="./audio/intro.wav"></a-sound>
             <a-plane id="scene1-button" visible="false" position="0 1.5 -3" width="1.5" height="0.5" color="white" class="clickable"
                      text="value: Scene 1; align: center; width: 5; color: black;"></a-plane>
         </a-entity>
@@ -65,7 +65,9 @@
                     });
                 }
 
+                // Play intro audio once scene is visible
                 setTimeout(() => {
+                    document.getElementById("intro-audio").components.sound.playSound();
                     document.getElementById("scene1-button").setAttribute("visible", "true");
                 }, 24000); // Show button after 24s
             } else {
