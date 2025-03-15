@@ -1,117 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VR Interaction</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
 </head>
 <body>
-    <a-scene background="color: black" vr-mode-ui="enabled: true">
+    <!-- Page 1: Name Input -->
+    <div id="name-form">
+        <label for="username">Enter Your Name:</label>
+        <input type="text" id="username" required>
+        <button style="color: black;" onclick="startVR()">Submit</button>
+    </div>
+
+    <a-scene id="vr-scene" embedded style="display: none;" vr-mode-ui="enabled: true">
+        <!-- Right Hand Controller -->
+        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
         
-        <a-assets>
-            <audio id="intro-audio" src="intro.wav" preload="auto"></audio>
-            <img id="logo-img" src="./images/logo.png">
-        </a-assets>
-
-        <!-- Camera (PC users) -->
-        <a-entity id="camera" camera position="0 1.6 0" look-controls wasd-controls>
-            <a-cursor color="white" fuse="false"></a-cursor> <!-- PC Click Support -->
-        </a-entity>
-
-        <!-- VR Right-hand Controller (Laser hidden in PC mode) -->
-        <a-entity id="rightHand" laser-controls="hand: right" 
-            raycaster="objects: .clickable; showLine: false; far: 10">
-        </a-entity>
-
-        <a-entity id="intro">
-            <a-image src="#logo-img" position="0 2.5 -4" width="0.5" height="0.5"></a-image>
-
-            <a-entity 
-                text="value: Welcome to this immersive experience; color: white; width: 5; align: center"
-                position="0 1.9 -4">
-            </a-entity>
-
-            <a-entity 
-                text="value: Exploring the architectural marvels of Chettinad...; color: white; width: 3.5; wrapCount: 50; align: left"
-                position="0 1 -4">
-            </a-entity>
-
-            <!-- Start Button (PC + VR Clickable) -->
-            <a-entity id="start-button" position="0 -0.5 -4" 
-                class="clickable" 
-                geometry="primitive: plane; width: 1.5; height: 0.6" 
-                material="color: #444; shader: flat"
-                event-set__mouseenter="material.color: #666" 
-                event-set__mouseleave="material.color: #444"
-                onclick="startCountdown()">
-                
-                <a-entity text="value: Start; align: center; color: white; width: 4" position="0 0 0.01"></a-entity>
-            </a-entity>
-
-            <!-- Countdown Text (Hidden Initially) -->
-            <a-entity 
-                id="countdown-text"
-                text="value: ; align: center; color: white; width: 4"
-                position="0 -0.5 -4"
-                scale="0 0 0">
-            </a-entity>
-
-            <!-- Final Start Button (Hidden Initially) -->
-            <a-entity id="final-start-button" position="0 -0.5 -4" 
-                class="clickable" 
-                geometry="primitive: plane; width: 1.5; height: 0.6" 
-                material="color: green; shader: flat"
-                event-set__mouseenter="material.color: #0f0" 
-                event-set__mouseleave="material.color: green"
-                scale="0 0 0"
-                onclick="goToScene1()">
-
-                <a-entity text="value: Start Now; align: center; color: white; width: 4" position="0 0 0.01"></a-entity>
+        <!-- Intro Scene -->
+        <a-entity id="intro-scene" visible="false">
+            <a-sky src="images/intro.jpg"></a-sky>
+            <a-entity position="0 1.6 -3">
+                <a-plane id="start-button" position="0 0 -1" width="1" height="0.5" color="white" class="clickable"
+                         text="value: Start; align: center; width: 5; color: black;" onclick="showScene('scene-1')"></a-plane>
             </a-entity>
         </a-entity>
 
+        <!-- Scene 1 -->
+        <a-entity id="scene-1" visible="false">
+            <a-sky src="images/1.png"></a-sky>
+            <a-plane id="main_entrance" position="-1 1.5 -3" width="2" height="2" color="rgba(255, 0, 0, 0.5)"
+                     class="clickable" text="value: Main Entrance; align: center; width: 5; color: black;"></a-plane>
+            <a-plane id="roof_sculpture" position="1 2 -3" width="2" height="2" color="rgba(0, 255, 0, 0.5)"
+                     class="clickable" text="value: Roof Sculpture; align: center; width: 5; color: black;"></a-plane>
+        </a-entity>
+
+        <!-- Scene 2 -->
+        <a-entity id="scene-2" visible="false">
+            <a-sky src="images/2.png"></a-sky>
+            <a-plane id="mosaic_tiles" position="-1 1.5 -3" width="2" height="2" color="rgba(0, 0, 255, 0.5)"
+                     class="clickable" text="value: Mosaic Tiles; align: center; width: 5; color: black;"></a-plane>
+            <a-plane id="wood_carvings" position="1 2 -3" width="2" height="2" color="rgba(255, 255, 0, 0.5)"
+                     class="clickable" text="value: Wood Carvings; align: center; width: 5; color: black;"></a-plane>
+        </a-entity>
     </a-scene>
 
     <script>
-        function startCountdown() {
-            document.getElementById("start-button").setAttribute("scale", "0 0 0");
-
-            let countdownText = document.getElementById("countdown-text");
-            countdownText.setAttribute("scale", "1 1 1");
-
-            let audio = document.getElementById("intro-audio");
-            audio.play();
-
-            let countdown = 10;
-            let countdownInterval = setInterval(() => {
-                countdownText.setAttribute("text", "value: Starts in " + countdown + "s");
-
-                if (countdown <= 0) {
-                    clearInterval(countdownInterval);
-                    countdownText.setAttribute("scale", "0 0 0");
-                    document.getElementById("final-start-button").setAttribute("scale", "1 1 1");
+        function startVR() {
+            let name = document.getElementById("username").value;
+            if (name.trim() !== "") {
+                localStorage.setItem("username", name);
+                document.getElementById("name-form").style.display = "none";
+                document.getElementById("vr-scene").style.display = "block";
+                document.getElementById("intro-scene").setAttribute("visible", "true");
+                
+                let scene = document.querySelector("a-scene");
+                if (scene && scene.enterVR) {
+                    scene.enterVR();
                 }
-
-                countdown--;
-            }, 1000);
+            } else {
+                alert("Please enter your name");
+            }
         }
 
-        function goToScene1() {
-            console.log("Going to Scene 1...");
+        function showScene(sceneId) {
+            document.getElementById("intro-scene").setAttribute("visible", "false");
+            document.getElementById(sceneId).setAttribute("visible", "true");
         }
-
-        // 🔥 Hide Laser in PC Mode
-        AFRAME.registerComponent("hide-laser-in-pc", {
-            init: function () {
-                if (!AFRAME.utils.device.isMobileVR()) {
-                    this.el.setAttribute("raycaster", "showLine: false");
-                }
-            },
-        });
-
-        document.querySelector("#rightHand").setAttribute("hide-laser-in-pc", "");
     </script>
-
 </body>
 </html>
