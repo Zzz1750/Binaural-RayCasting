@@ -53,8 +53,8 @@
                 document.getElementById("intro-scene").setAttribute("visible", "true");
                 
                 let scene = document.querySelector("a-scene");
-                if (scene && scene.enterVR) {
-                    scene.enterVR();
+                if (scene.requestFullscreen) {
+                    scene.requestFullscreen();
                 }
             } else {
                 alert("Please enter your name");
