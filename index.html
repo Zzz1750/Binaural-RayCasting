@@ -45,22 +45,22 @@
 
         <!-- Scene 1 (Initially Hidden) -->
         <a-entity id="scene-1" visible="false">
-            <a-sky src="./images/scene1.jpg"></a-sky>
-
-            <a-plane id="main_entrance" position="-2 1.5 -3" width="2" height="1" color="blue" class="gaze-plane"
-                text="value: Main Entrance; align: center; width: 5; color: white;">
-            </a-plane>
-
-            <a-plane id="roof_sculpture" position="2 2 -3" width="2" height="1" color="green" class="gaze-plane"
-                text="value: Roof Sculpture; align: center; width: 5; color: white;">
-            </a-plane>
-
+            <a-sky src="./images/1.png"></a-sky>
+        
+            <!-- Gaze Planes -->
+            <a-plane id="main_entrance" class="gaze-plane clickable" position="0 1.5 -3" width="2" height="2" color="blue"></a-plane>
+            <a-plane id="roof_sculpture" class="gaze-plane clickable" position="2 1.5 -3" width="2" height="2" color="green"></a-plane>
+        
+            <!-- Scene 1 Audio -->
             <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto"></audio>
             <audio id="roof_sculpture_audio" src="./audio/roof_sculpture.wav" preload="auto"></audio>
-
-            <a-plane id="scene2-button" position="0 1.5 -3" width="1" height="0.5" color="white" visible="false"
-                class="clickable"
-                text="value: To Scene 2; align: center; width: 5; color: black;">
+        
+            <!-- Display Gaze Data -->
+            <a-entity id="gaze-data-display" position="-1 2 -2" text="value: Loading...; align: center; color: white; width: 2;"></a-entity>
+        
+            <!-- Scene 2 Button (Hidden Initially) -->
+            <a-plane id="scene2-button" class="clickable" position="0 -1 -2" width="1" height="0.5" color="red" visible="false"
+                text="value: To Scene 2; align: center; color: white;">
             </a-plane>
         </a-entity>
 
@@ -119,10 +119,10 @@
         });
     </script>
 
-
     <script>
         let scene1 = document.getElementById("scene-1");
         let scene2Button = document.getElementById("scene2-button");
+        let gazeDisplay = document.getElementById("gaze-data-display");
     
         let mainEntranceAudio = document.getElementById("main_entrance_audio");
         let roofSculptureAudio = document.getElementById("roof_sculpture_audio");
@@ -133,14 +133,14 @@
         let currentGazeStart = null;
         let currentPlane = null;
     
-        // Use existing scene1Button variable
+        // Scene 1 Button Click
         scene1Button.addEventListener("click", function () {
             introScene.setAttribute("visible", "false");
             scene1.setAttribute("visible", "true");
     
             // Play Main Entrance audio immediately
             mainEntranceAudio.play();
-            reactionTimes.main_entrance = performance.now(); // Start reaction timer
+            reactionTimes.main_entrance = performance.now();
     
             // Play Roof Sculpture audio after 63s
             setTimeout(() => {
@@ -164,6 +164,8 @@
                 if (reactionTimes[currentPlane]) {
                     reactionTimes[currentPlane] = performance.now() - reactionTimes[currentPlane];
                 }
+    
+                updateGazeDisplay();
             });
     
             plane.addEventListener("mouseleave", function () {
@@ -176,9 +178,18 @@
                     }
     
                     currentGazeStart = null;
+                    updateGazeDisplay();
                 }
             });
         });
+    
+        // Update Live Display
+        function updateGazeDisplay() {
+            gazeDisplay.setAttribute("text", "value: " +
+                `Main Entrance:\n Total: ${(gazeData.main_entrance.total / 1000).toFixed(1)}s \n Longest: ${(gazeData.main_entrance.longest / 1000).toFixed(1)}s \n Reaction: ${(reactionTimes.main_entrance / 1000).toFixed(1)}s\n\n` +
+                `Roof Sculpture:\n Total: ${(gazeData.roof_sculpture.total / 1000).toFixed(1)}s \n Longest: ${(gazeData.roof_sculpture.longest / 1000).toFixed(1)}s \n Reaction: ${(reactionTimes.roof_sculpture / 1000).toFixed(1)}s`
+            );
+        }
     
         // Button Hover Effect
         scene2Button.addEventListener("mouseenter", function () {
@@ -189,6 +200,7 @@
         });
     
     </script>
+    
     
 
 </body>
