@@ -56,6 +56,15 @@
                 document.getElementById("name-form").style.display = "none";
                 document.getElementById("intro-scene").setAttribute("visible", "true");
 
+                const sceneEl = document.getElementById("vr-scene");
+                if (sceneEl.hasLoaded) {
+                    sceneEl.enterVR();
+                } else {
+                    sceneEl.addEventListener("loaded", () => {
+                        sceneEl.enterVR();
+                    });
+                }
+
                 setTimeout(() => {
                     document.getElementById("scene1-button").setAttribute("visible", "true");
                 }, 24000); // Show button after 24s
