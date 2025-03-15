@@ -77,12 +77,11 @@
             let name = document.getElementById("username").value;
             if (name.trim() !== "") {
                 document.getElementById("name-form").style.display = "none";
-
-                // Function to proceed once the audio is loaded
+        
                 function showIntroScene() {
                     introScene.setAttribute("visible", "true");
                     introAudio.play();
-
+        
                     // Auto-enter VR
                     if (sceneEl.hasLoaded) {
                         sceneEl.enterVR();
@@ -91,24 +90,45 @@
                             sceneEl.enterVR();
                         });
                     }
-
+        
                     // Show "Scene 1" button after audio ends
                     setTimeout(() => {
                         scene1Button.setAttribute("visible", "true");
+        
+                        // Attach event listener here (after it's visible)
+                        scene1Button.addEventListener("click", function () {
+                            introScene.setAttribute("visible", "false");
+                            scene1.setAttribute("visible", "true");
+        
+                            // Play Main Entrance audio immediately
+                            mainEntranceAudio.play();
+                            reactionTimes.main_entrance = performance.now();
+        
+                            // Play Roof Sculpture audio after 63s
+                            setTimeout(() => {
+                                roofSculptureAudio.play();
+                                reactionTimes.roof_sculpture = performance.now();
+                            }, 63000);
+        
+                            // Show Scene 2 button after 103s
+                            setTimeout(() => {
+                                scene2Button.setAttribute("visible", "true");
+                            }, 103000);
+                        });
                     }, 24000);
                 }
-
-                // Check if audio is already loaded
+        
                 if (introAudio.readyState >= 3) { 
                     showIntroScene(); 
                 } else {
                     introAudio.addEventListener("canplaythrough", showIntroScene);
-                    introAudio.load(); // Ensure it starts loading
+                    introAudio.load();
                 }
             } else {
                 alert("Please enter your name");
             }
         }
+        
 
         // Button Hover Effect
         scene1Button.addEventListener("mouseenter", function() {
