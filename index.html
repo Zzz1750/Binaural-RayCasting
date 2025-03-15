@@ -16,6 +16,7 @@
 </head>
 <body>
 
+    <!-- Name Input Form -->
     <div id="name-form">
         <label for="username">Enter Your Name:</label>
         <input type="text" id="username" required>
@@ -23,10 +24,25 @@
     </div>
 
     <a-scene id="vr-scene" vr-mode-ui="enabled: true">
+        <!-- Right Hand Controller for Clicking -->
         <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
 
+        <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
             <a-sky src="./images/intro.jpg"></a-sky>
+            <!-- Start Scene 1 Button -->
+            <a-plane id="start-button" position="0 1.5 -2" width="1" height="0.5" color="white"
+                     text="value: Start Scene 1; align: center; width: 3; color: black;"
+                     class="clickable" 
+                     onclick="showScene('scene-1')"
+                     event-set__hoveron="material.color: blue"
+                     event-set__hoveroff="material.color: white">
+            </a-plane>
+        </a-entity>
+
+        <!-- Scene 1 -->
+        <a-entity id="scene-1" visible="false">
+            <a-sky src="./images/1.png"></a-sky>
         </a-entity>
     </a-scene>
 
@@ -38,18 +54,16 @@
 
                 const sceneEl = document.getElementById("vr-scene");
                 document.getElementById("intro-scene").setAttribute("visible", "true");
-
-                if (sceneEl.hasLoaded) {
-                    sceneEl.enterVR();
-                } else {
-                    sceneEl.addEventListener("loaded", () => {
-                        sceneEl.enterVR();
-                    });
-                }
             } else {
                 alert("Please enter your name");
             }
         }
+
+        function showScene(sceneId) {
+            document.getElementById("intro-scene").setAttribute("visible", "false");
+            document.getElementById(sceneId).setAttribute("visible", "true");
+        }
     </script>
+
 </body>
 </html>
