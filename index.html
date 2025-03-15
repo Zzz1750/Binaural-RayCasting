@@ -54,7 +54,9 @@
     
                 let scene = document.querySelector("a-scene");
                 if (scene && scene.enterVR) {
-                    scene.enterVR(); // Enter VR mode directly
+                    setTimeout(() => {
+                        scene.enterVR(); // Force VR mode after a small delay
+                    }, 500);
                 }
             } else {
                 alert("Please enter your name");
@@ -66,6 +68,5 @@
             document.getElementById(sceneId).setAttribute("visible", "true");
         }
     </script>
-    
 </body>
 </html>
