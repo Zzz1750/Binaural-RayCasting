@@ -29,10 +29,12 @@
     <a-scene id="vr-scene" vr-mode-ui="enabled: true">
         <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
 
-        <!-- Intro Scene -->
+        <!-- Preload Audio (Hidden) -->
+        <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
+
+        <!-- Intro Scene (Initially Hidden) -->
         <a-entity id="intro-scene" visible="false">
             <a-sky src="./images/intro.jpg"></a-sky>
-            <a-sound id="intro-audio" src="./audio/intro.wav" autoplay="false" preload="auto"></a-sound>
             <a-plane id="scene1-button" position="0 1.5 -3" width="1" height="0.5" color="white" visible="false"
                 class="clickable"
                 text="value: Scene 1; align: center; width: 5; color: black;">
@@ -43,15 +45,17 @@
     <script>
         let introAudio = document.getElementById("intro-audio");
         let sceneEl = document.getElementById("vr-scene");
+        let introScene = document.getElementById("intro-scene");
+        let scene1Button = document.getElementById("scene1-button");
 
         function startVR() {
             let name = document.getElementById("username").value;
             if (name.trim() !== "") {
                 document.getElementById("name-form").style.display = "none";
 
-                // Wait until intro audio is loaded before proceeding
-                introAudio.addEventListener("loadeddata", () => {
-                    document.getElementById("intro-scene").setAttribute("visible", "true");
+                // Function to proceed once the audio is loaded
+                function showIntroScene() {
+                    introScene.setAttribute("visible", "true");
                     introAudio.play();
 
                     // Auto-enter VR
@@ -65,12 +69,16 @@
 
                     // Show "Scene 1" button after audio ends
                     setTimeout(() => {
-                        document.getElementById("scene1-button").setAttribute("visible", "true");
+                        scene1Button.setAttribute("visible", "true");
                     }, 24000);
-                });
+                }
 
+                // Check if audio is already loaded
                 if (introAudio.readyState >= 3) { 
-                    introAudio.dispatchEvent(new Event("loadeddata")); 
+                    showIntroScene(); 
+                } else {
+                    introAudio.addEventListener("canplaythrough", showIntroScene);
+                    introAudio.load(); // Ensure it starts loading
                 }
             } else {
                 alert("Please enter your name");
@@ -78,10 +86,10 @@
         }
 
         // Button Hover Effect
-        document.getElementById("scene1-button").addEventListener("mouseenter", function() {
+        scene1Button.addEventListener("mouseenter", function() {
             this.setAttribute("material", "opacity: 0.7");
         });
-        document.getElementById("scene1-button").addEventListener("mouseleave", function() {
+        scene1Button.addEventListener("mouseleave", function() {
             this.setAttribute("material", "opacity: 1");
         });
     </script>
