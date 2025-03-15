@@ -2,26 +2,31 @@
 <html>
 <head>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <style>
+        #name-form {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
-    <!-- Page 1: Name Input -->
+
     <div id="name-form">
         <label for="username">Enter Your Name:</label>
         <input type="text" id="username" required>
         <button style="color: black;" onclick="startVR()">Submit</button>
     </div>
 
-    <a-scene id="vr-scene" embedded style="display: none;" vr-mode-ui="enabled: true">
-        <!-- Right Hand Controller -->
+    <a-scene id="vr-scene" vr-mode-ui="enabled: true">
         <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
-        
-        <!-- Intro Scene -->
+
         <a-entity id="intro-scene" visible="false">
-            <a-sky src="images/intro.jpg"></a-sky>
-            <a-entity position="0 1.6 -3">
-                <a-plane id="start-button" position="0 0 -1" width="1" height="0.5" color="white" class="clickable"
-                         text="value: Start; align: center; width: 5; color: black;" onclick="showScene('scene-1')"></a-plane>
-            </a-entity>
+            <a-sky src="./images/intro.jpg"></a-sky>
         </a-entity>
     </a-scene>
 
@@ -29,18 +34,21 @@
         function startVR() {
             let name = document.getElementById("username").value;
             if (name.trim() !== "") {
-                localStorage.setItem("username", name);
                 document.getElementById("name-form").style.display = "none";
-                document.getElementById("vr-scene").style.display = "block";
+
+                const sceneEl = document.getElementById("vr-scene");
                 document.getElementById("intro-scene").setAttribute("visible", "true");
+
+                if (sceneEl.hasLoaded) {
+                    sceneEl.enterVR();
+                } else {
+                    sceneEl.addEventListener("loaded", () => {
+                        sceneEl.enterVR();
+                    });
+                }
             } else {
                 alert("Please enter your name");
             }
-        }
-
-        function showScene(sceneId) {
-            document.getElementById("intro-scene").setAttribute("visible", "false");
-            document.getElementById(sceneId).setAttribute("visible", "true");
         }
     </script>
 </body>
