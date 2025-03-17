@@ -24,12 +24,15 @@
     </div>
 
     <a-scene id="vr-scene" vr-mode-ui="enabled: true">
-        <!-- Right Hand Controller for Clicking -->
-        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable;"></a-entity>
+        
+        <!-- Right Hand Controller (For Clicking Buttons Only) -->
+        <a-entity id="right-hand" laser-controls="hand: right" 
+            raycaster="objects: .clickable; showLine: true; interval: 100; color: yellow;">
+        </a-entity>
 
-        <!-- Headset Raycaster for Gaze Tracking (Now Visible) -->
-        <a-entity id="head-rig" camera position="0 1.6 0" 
-                raycaster="objects: .gaze-plane; showLine: true; interval: 100; color: red">
+        <!-- Headset Raycaster (For Gaze Tracking) -->
+        <a-entity id="head-rig" camera position="0 1.6 0"
+            raycaster="objects: .gaze-plane; showLine: false; interval: 100">
         </a-entity>
 
         <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
@@ -45,18 +48,18 @@
         <!-- Scene 1 -->
         <a-entity id="scene-1" visible="false">
             <a-sky src="./images/1.png"></a-sky>
-        
-            <!-- Gaze Planes -->
+
+            <!-- Gaze Planes (For Headset Tracking) -->
             <a-plane id="main_entrance" class="gaze-plane" position="0 1.5 -4" width="2" height="2" color="blue" visible="false"></a-plane>
             <a-plane id="roof_sculpture" class="gaze-plane" position="2 1.5 -4" width="2" height="2" color="green" visible="false"></a-plane>
 
             <!-- Scene 1 Audio -->
             <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto"></audio>
             <audio id="roof_sculpture_audio" src="./audio/roof_sculpture.wav" preload="auto"></audio>
-        
+
             <!-- Display Gaze Data -->
             <a-entity id="gaze-data-display" position="-1 2 -2" text="value: Loading...; align: center; color: white; width: 2;"></a-entity>
-        
+
             <!-- Scene 2 Button -->
             <a-plane id="scene2-button" class="clickable" position="0 -1 -2" width="1" height="0.5" color="red" visible="false"
                 text="value: To Scene 2; align: center; color: white;">
@@ -78,70 +81,55 @@
 
         function startVR() {
             let name = document.getElementById("username").value;
-            let introAudio = document.getElementById("intro-audio"); // Ensure this exists
-        
             if (name.trim() === "") {
                 alert("Please enter your name");
                 return;
             }
-        
-            if (!introAudio) {
-                console.error("Intro audio element not found!");
-                return;
-            }
-        
+
             document.getElementById("name-form").style.display = "none";
-        
+
             function showIntroScene() {
                 introScene.setAttribute("visible", "true");
                 introAudio.play();
-        
+
                 if (sceneEl.hasLoaded) {
                     sceneEl.enterVR();
                 } else {
-                    sceneEl.addEventListener("loaded", () => {
-                        sceneEl.enterVR();
-                    });
+                    sceneEl.addEventListener("loaded", () => sceneEl.enterVR());
                 }
-        
-                // Show "Scene 1" button after audio ends
+
                 setTimeout(() => {
                     scene1Button.setAttribute("visible", "true");
                 }, 24000);
             }
-        
-            if (introAudio.readyState >= 3) { 
-                showIntroScene(); 
+
+            if (introAudio.readyState >= 3) {
+                showIntroScene();
             } else {
                 introAudio.addEventListener("canplaythrough", showIntroScene);
                 introAudio.load();
             }
         }
-        
+
         function goToScene1() {
             introScene.setAttribute("visible", "false");
             scene1.setAttribute("visible", "true");
-        
+
             mainEntrancePlane.setAttribute("visible", "true");
             roofSculpturePlane.setAttribute("visible", "true");
-        
-            mainEntrancePlane.classList.add("clickable");
-            roofSculpturePlane.classList.add("clickable");
-        
+
             mainEntranceAudio.play();
             reactionTimes.main_entrance = performance.now();
-        
+
             setTimeout(() => {
                 roofSculptureAudio.play();
                 reactionTimes.roof_sculpture = performance.now();
             }, 63000);
-        
+
             setTimeout(() => {
                 scene2Button.setAttribute("visible", "true");
             }, 103000);
         }
-        
-        
 
         scene1Button.addEventListener("click", goToScene1);
     </script>
@@ -157,37 +145,34 @@
         let currentGazeStart = null;
         let currentPlane = null;
 
-        document.querySelectorAll(".gaze-plane").forEach(plane => {
-            plane.addEventListener("mouseenter", function () {
-                if (!this.getAttribute("visible")) return; // Gaze works only when the plane is visible
-        
-                currentGazeStart = performance.now();
-                currentPlane = this.id;
-        
-                // Record reaction time ONLY after the corresponding audio starts
-                if (currentPlane === "main_entrance" && performance.now() > reactionTimes.main_entrance) {
-                    reactionTimes.main_entrance = performance.now() - reactionTimes.main_entrance;
-                }
-                if (currentPlane === "roof_sculpture" && performance.now() > reactionTimes.roof_sculpture) {
-                    reactionTimes.roof_sculpture = performance.now() - reactionTimes.roof_sculpture;
-                }
-            });
-        
-            plane.addEventListener("mouseleave", function () {
-                if (currentGazeStart) {
-                    let gazeDuration = performance.now() - currentGazeStart;
-                    gazeData[currentPlane].total += gazeDuration;
-        
-                    if (gazeDuration > gazeData[currentPlane].longest) {
-                        gazeData[currentPlane].longest = gazeDuration;
-                    }
-        
-                    currentGazeStart = null;
-                    updateGazeDisplay();
-                }
-            });
+        // Headset Raycasting for Gaze Tracking
+        let headRig = document.getElementById("head-rig");
+        headRig.addEventListener("raycaster-intersection", (event) => {
+            let plane = event.detail.els[0];
+            if (!plane || !plane.getAttribute("visible")) return;
+
+            currentGazeStart = performance.now();
+            currentPlane = plane.id;
+
+            // Reaction Time Recording (Only First Time)
+            if (reactionTimes[currentPlane] !== null && performance.now() > reactionTimes[currentPlane]) {
+                reactionTimes[currentPlane] = performance.now() - reactionTimes[currentPlane];
+            }
         });
-        
+
+        headRig.addEventListener("raycaster-intersection-cleared", () => {
+            if (currentGazeStart) {
+                let gazeDuration = performance.now() - currentGazeStart;
+                gazeData[currentPlane].total += gazeDuration;
+
+                if (gazeDuration > gazeData[currentPlane].longest) {
+                    gazeData[currentPlane].longest = gazeDuration;
+                }
+
+                currentGazeStart = null;
+                updateGazeDisplay();
+            }
+        });
 
         function updateGazeDisplay() {
             gazeDisplay.setAttribute("text", "value: " +
@@ -195,7 +180,6 @@
                 `Roof Sculpture:\n Total: ${(gazeData.roof_sculpture.total / 1000).toFixed(1)}s \n Longest: ${(gazeData.roof_sculpture.longest / 1000).toFixed(1)}s; color: white;`
             );
         }
-        
     </script>
 
 </body>
