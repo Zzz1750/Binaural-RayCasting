@@ -74,9 +74,9 @@
             <audio id="mosaic_tiles_audio" src="./audio/mosaic_tiles.wav" preload="auto"></audio>
             <audio id="wood_carvings_audio" src="./audio/wood_carvings.wav" preload="auto"></audio>
 
-            <a-plane id="finish-button" position="0 -1 -2" width="1" height="0.5" color="green" visible="false"
+            <ascene2Button -plane id="finish-button" position="0 -1 -2" width="1" height="0.5" color="green" visible="false"
                 text="value: Finish; align: center; color: white;">
-            </a-plane>
+            </ascene2Button>
         </a-entity>
 
     </a-scene>
@@ -116,6 +116,7 @@
                 finishButton.classList.add("clickable");
             }, 98000);
         }
+        let scene2Button = document.getElementById("scene2-button");
 
         scene2Button.addEventListener("click", goToScene2);
 
@@ -159,7 +160,6 @@
         let introScene = document.getElementById("intro-scene");
         let scene1Button = document.getElementById("scene1-button");
         let scene1 = document.getElementById("scene-1");
-        let scene2Button = document.getElementById("scene2-button");
 
         let mainEntrancePlane = document.getElementById("main_entrance");
         let roofSculpturePlane = document.getElementById("roof_sculpture");
