@@ -20,22 +20,20 @@
     <div id="name-form">
         <label for="username">Enter Your Name:</label>
         <input type="text" id="username" required>
-        <button style="color: black;" onclick="startVR()">Submit</button>
+        <button onclick="startVR()">Submit</button>
     </div>
 
     <a-scene id="vr-scene" vr-mode-ui="enabled: true">
         
-        <!-- Right Hand Controller (For Clicking Buttons Only) -->
-        <a-entity id="right-hand" laser-controls="hand: right" 
+        <!-- Right Hand Controller -->
+        <a-entity id="right-hand" laser-controls="hand: right"
             raycaster="objects: .clickable; showLine: true; interval: 100; color: yellow;">
         </a-entity>
 
-        <!-- Headset Raycaster (For Gaze Tracking) -->
+        <!-- Headset Raycaster -->
         <a-entity id="head-rig" camera position="0 1.6 0"
-            raycaster="objects: .gaze-plane; showLine: false; interval: 100">
+            raycaster="objects: .gaze-plane; showLine: false; interval: 100;">
         </a-entity>
-
-        <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
 
         <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
@@ -50,12 +48,8 @@
             <a-sky src="./images/1.png"></a-sky>
 
             <!-- Gaze Planes -->
-            <a-plane id="main_entrance" class="gaze-plane" position="0 1.5 -4" width="2" height="2" color="blue" visible="false"></a-plane>
-            <a-plane id="roof_sculpture" class="gaze-plane" position="2 1.5 -4" width="2" height="2" color="green" visible="false"></a-plane>
-
-            <!-- Scene 1 Audio -->
-            <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto"></audio>
-            <audio id="roof_sculpture_audio" src="./audio/roof_sculpture.wav" preload="auto"></audio>
+            <a-plane id="main_entrance" class="gaze-plane" position="0 1.5 -4" width="2" height="2" color="blue"></a-plane>
+            <a-plane id="roof_sculpture" class="gaze-plane" position="2 1.5 -4" width="2" height="2" color="green"></a-plane>
 
             <!-- Scene 2 Button -->
             <a-plane id="scene2-button" position="0 -1 -2" width="1" height="0.5" color="red" visible="false"
@@ -68,12 +62,8 @@
             <a-sky src="./images/2.png"></a-sky>
 
             <!-- Gaze Planes -->
-            <a-plane id="mosaic_tiles" class="gaze-plane" position="-1 1.5 -4" width="2" height="2" color="orange" visible="false"></a-plane>
-            <a-plane id="wood_carvings" class="gaze-plane" position="1 1.5 -4" width="2" height="2" color="brown" visible="false"></a-plane>
-
-            <!-- Scene 2 Audio -->
-            <audio id="mosaic_tiles_audio" src="./audio/mosaic_tiles.wav" preload="auto"></audio>
-            <audio id="wood_carvings_audio" src="./audio/wood_carvings.wav" preload="auto"></audio>
+            <a-plane id="mosaic_tiles" class="gaze-plane" position="-1 1.5 -4" width="2" height="2" color="orange"></a-plane>
+            <a-plane id="wood_carvings" class="gaze-plane" position="1 1.5 -4" width="2" height="2" color="brown"></a-plane>
 
             <!-- Finish Button -->
             <a-plane id="finish-button" position="0 -1 -2" width="1" height="0.5" color="green" visible="false"
@@ -84,7 +74,13 @@
     </a-scene>
 
     <script>
-        let introAudio = document.getElementById("intro-audio");
+        let gazeData = {
+            main_entrance: { total: 0, longest: 0, reaction: null },
+            roof_sculpture: { total: 0, longest: 0, reaction: null },
+            mosaic_tiles: { total: 0, longest: 0, reaction: null },
+            wood_carvings: { total: 0, longest: 0, reaction: null }
+        };
+
         let sceneEl = document.getElementById("vr-scene");
         let introScene = document.getElementById("intro-scene");
         let scene1 = document.getElementById("scene-1");
@@ -93,13 +89,6 @@
         let scene1Button = document.getElementById("scene1-button");
         let scene2Button = document.getElementById("scene2-button");
         let finishButton = document.getElementById("finish-button");
-
-        let gazeData = {
-            main_entrance: { total: 0, longest: 0, reaction: null },
-            roof_sculpture: { total: 0, longest: 0, reaction: null },
-            mosaic_tiles: { total: 0, longest: 0, reaction: null },
-            wood_carvings: { total: 0, longest: 0, reaction: null }
-        };
 
         let audioStartTimes = {};
         let currentGazeStart = null;
@@ -111,30 +100,17 @@
 
             document.getElementById("name-form").style.display = "none";
             introScene.setAttribute("visible", "true");
-            introAudio.play();
-
-            sceneEl.enterVR();
-
             setTimeout(() => {
                 scene1Button.setAttribute("visible", "true");
                 scene1Button.classList.add("clickable");
             }, 24000);
+
+            sceneEl.enterVR();
         }
 
         function goToScene1() {
             introScene.setAttribute("visible", "false");
             scene1.setAttribute("visible", "true");
-
-            document.getElementById("main_entrance").setAttribute("visible", "true");
-            document.getElementById("roof_sculpture").setAttribute("visible", "true");
-
-            document.getElementById("main_entrance_audio").play();
-            audioStartTimes.main_entrance = performance.now();
-
-            setTimeout(() => {
-                document.getElementById("roof_sculpture_audio").play();
-                audioStartTimes.roof_sculpture = performance.now();
-            }, 63000);
 
             setTimeout(() => {
                 scene2Button.setAttribute("visible", "true");
@@ -145,19 +121,6 @@
         function goToScene2() {
             scene1.setAttribute("visible", "false");
             scene2.setAttribute("visible", "true");
-
-            document.getElementById("mosaic_tiles").setAttribute("visible", "true");
-            document.getElementById("wood_carvings").setAttribute("visible", "true");
-
-            setTimeout(() => {
-                document.getElementById("mosaic_tiles_audio").play();
-                audioStartTimes.mosaic_tiles = performance.now();
-            }, 3000);
-
-            setTimeout(() => {
-                document.getElementById("wood_carvings_audio").play();
-                audioStartTimes.wood_carvings = performance.now();
-            }, 53000);
 
             setTimeout(() => {
                 finishButton.setAttribute("visible", "true");
