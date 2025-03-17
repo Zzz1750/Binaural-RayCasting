@@ -27,8 +27,10 @@
         <!-- Right Hand Controller for Clicking -->
         <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable;"></a-entity>
 
-        <!-- Headset Raycaster for Gaze Tracking -->
-        <a-entity id="head-rig" camera position="0 1.6 0" raycaster="objects: .gaze-plane; showLine: false; interval: 100"></a-entity>
+        <!-- Headset Raycaster for Gaze Tracking (Now Visible) -->
+        <a-entity id="head-rig" camera position="0 1.6 0" 
+                raycaster="objects: .gaze-plane; showLine: true; interval: 100; color: red">
+        </a-entity>
 
         <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
 
@@ -119,22 +121,27 @@
         function goToScene1() {
             introScene.setAttribute("visible", "false");
             scene1.setAttribute("visible", "true");
-
+        
             mainEntrancePlane.setAttribute("visible", "true");
             roofSculpturePlane.setAttribute("visible", "true");
-
+        
+            mainEntrancePlane.classList.add("clickable");
+            roofSculpturePlane.classList.add("clickable");
+        
             mainEntranceAudio.play();
             reactionTimes.main_entrance = performance.now();
-
+        
             setTimeout(() => {
                 roofSculptureAudio.play();
                 reactionTimes.roof_sculpture = performance.now();
             }, 63000);
-
+        
             setTimeout(() => {
                 scene2Button.setAttribute("visible", "true");
             }, 103000);
         }
+        
+        
 
         scene1Button.addEventListener("click", goToScene1);
     </script>
@@ -152,37 +159,43 @@
 
         document.querySelectorAll(".gaze-plane").forEach(plane => {
             plane.addEventListener("mouseenter", function () {
-                if (!this.getAttribute("visible")) return; // Ensure gaze only works when visible
-
+                if (!this.getAttribute("visible")) return; // Gaze works only when the plane is visible
+        
                 currentGazeStart = performance.now();
                 currentPlane = this.id;
-
-                if (reactionTimes[currentPlane] === null) {
-                    reactionTimes[currentPlane] = performance.now();
+        
+                // Record reaction time ONLY after the corresponding audio starts
+                if (currentPlane === "main_entrance" && performance.now() > reactionTimes.main_entrance) {
+                    reactionTimes.main_entrance = performance.now() - reactionTimes.main_entrance;
+                }
+                if (currentPlane === "roof_sculpture" && performance.now() > reactionTimes.roof_sculpture) {
+                    reactionTimes.roof_sculpture = performance.now() - reactionTimes.roof_sculpture;
                 }
             });
-
+        
             plane.addEventListener("mouseleave", function () {
                 if (currentGazeStart) {
                     let gazeDuration = performance.now() - currentGazeStart;
                     gazeData[currentPlane].total += gazeDuration;
-
+        
                     if (gazeDuration > gazeData[currentPlane].longest) {
                         gazeData[currentPlane].longest = gazeDuration;
                     }
-
+        
                     currentGazeStart = null;
                     updateGazeDisplay();
                 }
             });
         });
+        
 
         function updateGazeDisplay() {
             gazeDisplay.setAttribute("text", "value: " +
                 `Main Entrance:\n Total: ${(gazeData.main_entrance.total / 1000).toFixed(1)}s \n Longest: ${(gazeData.main_entrance.longest / 1000).toFixed(1)}s \n\n` +
-                `Roof Sculpture:\n Total: ${(gazeData.roof_sculpture.total / 1000).toFixed(1)}s \n Longest: ${(gazeData.roof_sculpture.longest / 1000).toFixed(1)}s`
+                `Roof Sculpture:\n Total: ${(gazeData.roof_sculpture.total / 1000).toFixed(1)}s \n Longest: ${(gazeData.roof_sculpture.longest / 1000).toFixed(1)}s; color: white;`
             );
         }
+        
     </script>
 
 </body>
