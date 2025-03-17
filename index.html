@@ -24,9 +24,6 @@
     </div>
 
     <a-scene id="vr-scene" vr-mode-ui="enabled: true">
-        <!-- Right Hand Controller -->
-        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable;"></a-entity>
-
         <!-- Preload Audio (Hidden) -->
         <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
 
@@ -44,10 +41,9 @@
         <a-entity id="scene-1" visible="false">
             <a-sky src="./images/1.png"></a-sky>
         
-            <!-- Gaze Planes -->
-            <a-plane id="main_entrance" class="gaze-plane clickable" position="0 1.5 -4" width="2" height="2" color="blue"></a-plane>
-            <a-plane id="roof_sculpture" class="gaze-plane clickable" position="2 1.5 -4" width="2" height="2" color="green"></a-plane>
-
+            <!-- Gaze Planes (Tracked by VR Headset) -->
+            <a-plane id="main_entrance" class="gaze-plane" position="0 1.5 -4" width="2" height="2" color="blue"></a-plane>
+            <a-plane id="roof_sculpture" class="gaze-plane" position="2 1.5 -4" width="2" height="2" color="green"></a-plane>
         
             <!-- Scene 1 Audio -->
             <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto"></audio>
@@ -95,10 +91,8 @@
                     // Show "Scene 1" button after audio ends
                     setTimeout(() => {
                         scene1Button.setAttribute("visible", "true");
-                        scene1Button.setAttribute("position", "0 1.5 -1"); // Move forward when visible
-                        scene1Button.classList.add("clickable"); // Ensure it's clickable
+                        scene1Button.classList.add("clickable"); // Make it clickable after delay
                     }, 24000);
-                    
                 }
 
                 if (introAudio.readyState >= 3) { 
@@ -113,12 +107,13 @@
         }
 
         function goToScene1() {
-
             introScene.setAttribute("visible", "false");
             scene1.setAttribute("visible", "true");
 
-            mainEntranceAudio.play();
-            reactionTimes.main_entrance = performance.now();
+            setTimeout(() => {
+                mainEntranceAudio.play();
+                reactionTimes.main_entrance = performance.now();
+            }, 0);
 
             setTimeout(() => {
                 roofSculptureAudio.play();
@@ -130,7 +125,6 @@
             }, 103000);
         }
 
-        // Fix: Right-hand controller clicking "Scene 1" button
         scene1Button.addEventListener("click", goToScene1);
     </script>
 
@@ -141,18 +135,33 @@
 
         let gazeData = { main_entrance: { total: 0, longest: 0 }, roof_sculpture: { total: 0, longest: 0 } };
         let reactionTimes = { main_entrance: null, roof_sculpture: null };
+        let audioStartTimes = { main_entrance: null, roof_sculpture: null };
 
         let currentGazeStart = null;
         let currentPlane = null;
 
-        // Head Gaze Tracking
+        // Ensure reaction time starts only when audio starts
+        mainEntranceAudio.addEventListener("play", () => {
+            if (!audioStartTimes.main_entrance) {
+                audioStartTimes.main_entrance = performance.now();
+            }
+        });
+
+        roofSculptureAudio.addEventListener("play", () => {
+            if (!audioStartTimes.roof_sculpture) {
+                audioStartTimes.roof_sculpture = performance.now();
+            }
+        });
+
+        // Headset Gaze Tracking
         document.querySelectorAll(".gaze-plane").forEach(plane => {
             plane.addEventListener("mouseenter", function () {
                 currentGazeStart = performance.now();
                 currentPlane = this.id;
 
-                if (reactionTimes[currentPlane]) {
-                    reactionTimes[currentPlane] = performance.now() - reactionTimes[currentPlane];
+                // Record reaction time only if it hasn't been recorded yet
+                if (!reactionTimes[currentPlane] && audioStartTimes[currentPlane]) {
+                    reactionTimes[currentPlane] = performance.now() - audioStartTimes[currentPlane];
                 }
 
                 updateGazeDisplay();
