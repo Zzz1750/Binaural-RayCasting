@@ -25,7 +25,7 @@
 
     <a-scene id="vr-scene" vr-mode-ui="enabled: true">
         
-        <!-- Right Hand Controller (For Clicking Buttons) -->
+        <!-- Right Hand Controller (For Clicking Buttons Only) -->
         <a-entity id="right-hand" laser-controls="hand: right" 
             raycaster="objects: .clickable; showLine: true; interval: 100; color: yellow;">
         </a-entity>
@@ -40,7 +40,7 @@
         <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
             <a-sky src="./images/intro.jpg"></a-sky>
-            <a-plane id="scene1-button" class="clickable" position="0 1.5 -1" width="1" height="0.5" color="white" visible="false"
+            <a-plane id="scene1-button" position="0 1.5 -1" width="1" height="0.5" color="white" visible="false"
                 text="value: Scene 1; align: center; width: 5; color: black;">
             </a-plane>
         </a-entity>
@@ -49,7 +49,7 @@
         <a-entity id="scene-1" visible="false">
             <a-sky src="./images/1.png"></a-sky>
 
-            <!-- Gaze Planes -->
+            <!-- Gaze Planes (For Headset Tracking) -->
             <a-plane id="main_entrance" class="gaze-plane" position="0 1.5 -4" width="2" height="2" color="blue" visible="false"></a-plane>
             <a-plane id="roof_sculpture" class="gaze-plane" position="2 1.5 -4" width="2" height="2" color="green" visible="false"></a-plane>
 
@@ -57,13 +57,11 @@
             <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto"></audio>
             <audio id="roof_sculpture_audio" src="./audio/roof_sculpture.wav" preload="auto"></audio>
 
-            <!-- Gaze Data Display -->
-            <a-entity id="gaze-data-display" position="-1 2 -2" 
-                text="value: Loading...; align: center; color: white; width: 2;">
-            </a-entity>
+            <!-- Display Gaze Data -->
+            <a-entity id="gaze-data-display" position="-1 2 -2" text="value: Loading...; align: center; color: white; width: 2;"></a-entity>
 
             <!-- Scene 2 Button -->
-            <a-plane id="scene2-button" class="clickable" position="0 -1 -2" width="1" height="0.5" color="red" visible="false"
+            <a-plane id="scene2-button" position="0 -1 -2" width="1" height="0.5" color="red" visible="false"
                 text="value: To Scene 2; align: center; color: white;">
             </a-plane>
         </a-entity>
@@ -83,6 +81,17 @@
 
         let mainEntranceAudio = document.getElementById("main_entrance_audio");
         let roofSculptureAudio = document.getElementById("roof_sculpture_audio");
+
+        let gazeDisplay = document.getElementById("gaze-data-display");
+
+        let gazeData = {
+            main_entrance: { total: 0, longest: 0, reaction: null },
+            roof_sculpture: { total: 0, longest: 0, reaction: null }
+        };
+
+        let audioStartTimes = {};
+        let currentGazeStart = null;
+        let currentPlane = null;
 
         function startVR() {
             let name = document.getElementById("username").value;
@@ -105,6 +114,7 @@
 
                 setTimeout(() => {
                     scene1Button.setAttribute("visible", "true");
+                    scene1Button.classList.add("clickable");
                 }, 24000);
             }
 
@@ -124,27 +134,20 @@
             roofSculpturePlane.setAttribute("visible", "true");
 
             mainEntranceAudio.play();
-            reactionTimes.main_entrance_start = performance.now();
+            audioStartTimes.main_entrance = performance.now();
 
             setTimeout(() => {
                 roofSculptureAudio.play();
-                reactionTimes.roof_sculpture_start = performance.now();
+                audioStartTimes.roof_sculpture = performance.now();
             }, 63000);
 
             setTimeout(() => {
                 scene2Button.setAttribute("visible", "true");
+                scene2Button.classList.add("clickable");
             }, 103000);
         }
 
         scene1Button.addEventListener("click", goToScene1);
-
-        let gazeDisplay = document.getElementById("gaze-data-display");
-
-        let gazeData = { main_entrance: { total: 0, longest: 0 }, roof_sculpture: { total: 0, longest: 0 } };
-        let reactionTimes = { main_entrance: null, roof_sculpture: null };
-
-        let currentGazeStart = null;
-        let currentPlane = null;
 
         let headRig = document.getElementById("head-rig");
         headRig.addEventListener("raycaster-intersection", (event) => {
@@ -154,24 +157,18 @@
             currentGazeStart = performance.now();
             currentPlane = plane.id;
 
-            // Record reaction time only once
-            if (currentPlane === "main_entrance" && reactionTimes.main_entrance === null) {
-                reactionTimes.main_entrance = performance.now() - reactionTimes.main_entrance_start;
+            if (audioStartTimes[currentPlane] && gazeData[currentPlane].reaction === null) {
+                gazeData[currentPlane].reaction = (performance.now() - audioStartTimes[currentPlane]) / 1000;
             }
-            if (currentPlane === "roof_sculpture" && reactionTimes.roof_sculpture === null) {
-                reactionTimes.roof_sculpture = performance.now() - reactionTimes.roof_sculpture_start;
-            }
-
-            updateGazeDisplay();
         });
 
         headRig.addEventListener("raycaster-intersection-cleared", () => {
             if (currentGazeStart) {
                 let gazeDuration = performance.now() - currentGazeStart;
-                gazeData[currentPlane].total += gazeDuration;
+                gazeData[currentPlane].total += gazeDuration / 1000;
 
-                if (gazeDuration > gazeData[currentPlane].longest) {
-                    gazeData[currentPlane].longest = gazeDuration;
+                if (gazeDuration > gazeData[currentPlane].longest * 1000) {
+                    gazeData[currentPlane].longest = gazeDuration / 1000;
                 }
 
                 currentGazeStart = null;
@@ -181,8 +178,8 @@
 
         function updateGazeDisplay() {
             gazeDisplay.setAttribute("text", "value: " +
-                `Main Entrance:\n Total: ${(gazeData.main_entrance.total / 1000).toFixed(1)}s \n Reaction: ${(reactionTimes.main_entrance / 1000).toFixed(1)}s \n\n` +
-                `Roof Sculpture:\n Total: ${(gazeData.roof_sculpture.total / 1000).toFixed(1)}s \n Reaction: ${(reactionTimes.roof_sculpture / 1000).toFixed(1)}s; color: white;`
+                `Main Entrance:\n Total: ${gazeData.main_entrance.total.toFixed(1)}s \n Longest: ${gazeData.main_entrance.longest.toFixed(1)}s \n Reaction: ${gazeData.main_entrance.reaction !== null ? gazeData.main_entrance.reaction.toFixed(1) + "s" : "N/A"} \n\n` +
+                `Roof Sculpture:\n Total: ${gazeData.roof_sculpture.total.toFixed(1)}s \n Longest: ${gazeData.roof_sculpture.longest.toFixed(1)}s \n Reaction: ${gazeData.roof_sculpture.reaction !== null ? gazeData.roof_sculpture.reaction.toFixed(1) + "s" : "N/A"}; color: white;`
             );
         }
     </script>
