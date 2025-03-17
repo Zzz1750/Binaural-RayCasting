@@ -98,8 +98,10 @@
                         scene1Button.setAttribute("visible", "true");
                         scene1Button.classList.add("clickable");
 
-                        // Refresh raycaster targets after showing the button
-                        document.querySelector('#right-hand').components.raycaster.refreshObjects();
+                        // ✅ FIXED: Add delay before refreshing raycaster
+                        setTimeout(() => {
+                            document.querySelector('#right-hand').components.raycaster.refreshObjects();
+                        }, 100); // 100ms delay ensures DOM and visibility changes are processed
                     }, 24000);
                 }
 
@@ -134,7 +136,7 @@
             }, 103000);
         }
 
-        // Fix: Right-hand controller clicking "Scene 1" button
+        // ✅ Fix: Right-hand controller clicking "Scene 1" button
         scene1Button.addEventListener("click", goToScene1);
     </script>
 
