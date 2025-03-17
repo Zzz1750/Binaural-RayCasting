@@ -89,11 +89,15 @@
         let scene1Sky = document.getElementById("scene1-sky");
         let scene2Button = document.getElementById("scene2-button");
 
+        let mainEntrance = document.getElementById("main_entrance");
+        let roofSculpture = document.getElementById("roof_sculpture");
         let mainEntranceAudio = document.getElementById("main_entrance_audio");
         let roofSculptureAudio = document.getElementById("roof_sculpture_audio");
 
         let scene2 = document.getElementById("scene-2");
         let scene2Sky = document.getElementById("scene2-sky");
+        let mosaicTiles = document.getElementById("mosaic_tiles");
+        let woodCarvings = document.getElementById("wood_carvings");
         let mosaicTilesAudio = document.getElementById("mosaic_tiles_audio");
         let woodCarvingsAudio = document.getElementById("wood_carvings_audio");
 
@@ -105,7 +109,6 @@
             }
             document.getElementById("name-form").style.display = "none";
 
-            // Load intro scene image and wait for intro audio
             introSky.setAttribute("src", "./images/intro.jpg");
             
             function showIntroScene() {
@@ -118,7 +121,6 @@
                     sceneEl.addEventListener("loaded", () => sceneEl.enterVR());
                 }
 
-                // While intro plays, preload Scene 1 assets
                 setTimeout(preloadScene1, 500);
 
                 setTimeout(() => {
@@ -145,6 +147,9 @@
             introScene.setAttribute("visible", "false");
             scene1.setAttribute("visible", "true");
 
+            mainEntrance.setAttribute("visible", "true");
+            roofSculpture.setAttribute("visible", "true");
+
             mainEntranceAudio.play();
             setTimeout(() => roofSculptureAudio.play(), 63000);
 
@@ -153,7 +158,6 @@
                 scene2Button.classList.add("clickable");
             }, 103000);
 
-            // Preload Scene 2 assets while Scene 1 plays
             setTimeout(preloadScene2, 500);
         }
 
@@ -163,7 +167,19 @@
             woodCarvingsAudio.load();
         }
 
+        function goToScene2() {
+            scene1.setAttribute("visible", "false");
+            scene2.setAttribute("visible", "true");
+
+            mosaicTiles.setAttribute("visible", "true");
+            woodCarvings.setAttribute("visible", "true");
+
+            setTimeout(() => mosaicTilesAudio.play(), 3000);
+            setTimeout(() => woodCarvingsAudio.play(), 53000);
+        }
+
         scene1Button.addEventListener("click", goToScene1);
+        scene2Button.addEventListener("click", goToScene2);
     </script>
 
 </body>
