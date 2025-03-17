@@ -30,6 +30,8 @@
         <!-- Headset Raycaster for Gaze Tracking -->
         <a-entity id="head-rig" camera position="0 1.6 0" raycaster="objects: .gaze-plane; showLine: false; interval: 100"></a-entity>
 
+        <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
+
         <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
             <a-sky src="./images/intro.jpg"></a-sky>
@@ -74,38 +76,46 @@
 
         function startVR() {
             let name = document.getElementById("username").value;
-            if (name.trim() !== "") {
-                document.getElementById("name-form").style.display = "none";
-
-                function showIntroScene() {
-                    introScene.setAttribute("visible", "true");
-                    introAudio.play();
-
-                    if (sceneEl.hasLoaded) {
-                        sceneEl.enterVR();
-                    } else {
-                        sceneEl.addEventListener("loaded", () => {
-                            sceneEl.enterVR();
-                        });
-                    }
-
-                    // Show "Scene 1" button after audio ends
-                    setTimeout(() => {
-                        scene1Button.setAttribute("visible", "true");
-                    }, 24000);
-                }
-
-                if (introAudio.readyState >= 3) { 
-                    showIntroScene(); 
-                } else {
-                    introAudio.addEventListener("canplaythrough", showIntroScene);
-                    introAudio.load();
-                }
-            } else {
+            let introAudio = document.getElementById("intro-audio"); // Ensure this exists
+        
+            if (name.trim() === "") {
                 alert("Please enter your name");
+                return;
+            }
+        
+            if (!introAudio) {
+                console.error("Intro audio element not found!");
+                return;
+            }
+        
+            document.getElementById("name-form").style.display = "none";
+        
+            function showIntroScene() {
+                introScene.setAttribute("visible", "true");
+                introAudio.play();
+        
+                if (sceneEl.hasLoaded) {
+                    sceneEl.enterVR();
+                } else {
+                    sceneEl.addEventListener("loaded", () => {
+                        sceneEl.enterVR();
+                    });
+                }
+        
+                // Show "Scene 1" button after audio ends
+                setTimeout(() => {
+                    scene1Button.setAttribute("visible", "true");
+                }, 24000);
+            }
+        
+            if (introAudio.readyState >= 3) { 
+                showIntroScene(); 
+            } else {
+                introAudio.addEventListener("canplaythrough", showIntroScene);
+                introAudio.load();
             }
         }
-
+        
         function goToScene1() {
             introScene.setAttribute("visible", "false");
             scene1.setAttribute("visible", "true");
