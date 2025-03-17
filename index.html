@@ -24,6 +24,12 @@
     </div>
 
     <a-scene id="vr-scene" vr-mode-ui="enabled: true">
+        <!-- Right Hand Controller for Clicking -->
+        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable;"></a-entity>
+
+        <!-- Headset Raycaster for Gaze Tracking -->
+        <a-entity id="head-rig" camera position="0 1.6 0" raycaster="objects: .gaze-plane; interval: 100"></a-entity>
+
         <!-- Preload Audio (Hidden) -->
         <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
 
@@ -41,10 +47,10 @@
         <a-entity id="scene-1" visible="false">
             <a-sky src="./images/1.png"></a-sky>
         
-            <!-- Gaze Planes (Tracked by VR Headset) -->
-            <a-plane id="main_entrance" class="gaze-plane" position="0 1.5 -4" width="2" height="2" color="blue"></a-plane>
-            <a-plane id="roof_sculpture" class="gaze-plane" position="2 1.5 -4" width="2" height="2" color="green"></a-plane>
-        
+            <!-- Gaze Planes -->
+            <a-plane id="main_entrance" class="gaze-plane" position="0 1.5 -4" width="2" height="2" color="blue" visible="false"></a-plane>
+            <a-plane id="roof_sculpture" class="gaze-plane" position="2 1.5 -4" width="2" height="2" color="green" visible="false"></a-plane>
+
             <!-- Scene 1 Audio -->
             <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto"></audio>
             <audio id="roof_sculpture_audio" src="./audio/roof_sculpture.wav" preload="auto"></audio>
@@ -70,6 +76,9 @@
         let scene1 = document.getElementById("scene-1");
         let scene2Button = document.getElementById("scene2-button");
 
+        let mainEntrancePlane = document.getElementById("main_entrance");
+        let roofSculpturePlane = document.getElementById("roof_sculpture");
+
         function startVR() {
             let name = document.getElementById("username").value;
             if (name.trim() !== "") {
@@ -79,7 +88,6 @@
                     introScene.setAttribute("visible", "true");
                     introAudio.play();
 
-                    // Auto-enter VR
                     if (sceneEl.hasLoaded) {
                         sceneEl.enterVR();
                     } else {
@@ -91,7 +99,7 @@
                     // Show "Scene 1" button after audio ends
                     setTimeout(() => {
                         scene1Button.setAttribute("visible", "true");
-                        scene1Button.classList.add("clickable"); // Make it clickable after delay
+                        scene1Button.classList.add("clickable");
                     }, 24000);
                 }
 
@@ -110,10 +118,11 @@
             introScene.setAttribute("visible", "false");
             scene1.setAttribute("visible", "true");
 
-            setTimeout(() => {
-                mainEntranceAudio.play();
-                reactionTimes.main_entrance = performance.now();
-            }, 0);
+            mainEntrancePlane.setAttribute("visible", "true");
+            roofSculpturePlane.setAttribute("visible", "true");
+
+            mainEntranceAudio.play();
+            reactionTimes.main_entrance = performance.now();
 
             setTimeout(() => {
                 roofSculptureAudio.play();
@@ -125,6 +134,7 @@
             }, 103000);
         }
 
+        // Fix: Right-hand controller clicking "Scene 1" button
         scene1Button.addEventListener("click", goToScene1);
     </script>
 
@@ -135,34 +145,20 @@
 
         let gazeData = { main_entrance: { total: 0, longest: 0 }, roof_sculpture: { total: 0, longest: 0 } };
         let reactionTimes = { main_entrance: null, roof_sculpture: null };
-        let audioStartTimes = { main_entrance: null, roof_sculpture: null };
 
         let currentGazeStart = null;
         let currentPlane = null;
 
-        // Ensure reaction time starts only when audio starts
-        mainEntranceAudio.addEventListener("play", () => {
-            if (!audioStartTimes.main_entrance) {
-                audioStartTimes.main_entrance = performance.now();
-            }
-        });
-
-        roofSculptureAudio.addEventListener("play", () => {
-            if (!audioStartTimes.roof_sculpture) {
-                audioStartTimes.roof_sculpture = performance.now();
-            }
-        });
-
-        // Headset Gaze Tracking
         document.querySelectorAll(".gaze-plane").forEach(plane => {
             plane.addEventListener("mouseenter", function () {
+                if (!this.getAttribute("visible")) return; // Ensure gaze only works when visible
+
                 currentGazeStart = performance.now();
                 currentPlane = this.id;
 
-                // Record reaction time only if it hasn't been recorded yet
-                if (!reactionTimes[currentPlane] && audioStartTimes[currentPlane]) {
-                    reactionTimes[currentPlane] = performance.now() - audioStartTimes[currentPlane];
-                }
+                if (reactionTimes[currentPlane] !== null) return; // Reaction time can't be changed
+
+                reactionTimes[currentPlane] = performance.now() - reactionTimes[currentPlane];
 
                 updateGazeDisplay();
             });
@@ -184,8 +180,8 @@
 
         function updateGazeDisplay() {
             gazeDisplay.setAttribute("text", "value: " +
-                `Main Entrance:\n Total: ${(gazeData.main_entrance.total / 1000).toFixed(1)}s \n Longest: ${(gazeData.main_entrance.longest / 1000).toFixed(1)}s \n Reaction: ${(reactionTimes.main_entrance / 1000).toFixed(1)}s\n\n` +
-                `Roof Sculpture:\n Total: ${(gazeData.roof_sculpture.total / 1000).toFixed(1)}s \n Longest: ${(gazeData.roof_sculpture.longest / 1000).toFixed(1)}s \n Reaction: ${(reactionTimes.roof_sculpture / 1000).toFixed(1)}s`
+                `Main Entrance:\n Total: ${(gazeData.main_entrance.total / 1000).toFixed(1)}s \n Longest: ${(gazeData.main_entrance.longest / 1000).toFixed(1)}s \n\n` +
+                `Roof Sculpture:\n Total: ${(gazeData.roof_sculpture.total / 1000).toFixed(1)}s \n Longest: ${(gazeData.roof_sculpture.longest / 1000).toFixed(1)}s`
             );
         }
     </script>
