@@ -28,18 +28,13 @@
         <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable;"></a-entity>
 
         <!-- Headset Raycaster for Gaze Tracking -->
-        <a-entity id="head-rig" camera position="0 1.6 0" raycaster="objects: .gaze-plane; interval: 100"></a-entity>
-
-        <!-- Preload Audio (Hidden) -->
-        <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
+        <a-entity id="head-rig" camera position="0 1.6 0" raycaster="objects: .gaze-plane; showLine: false; interval: 100"></a-entity>
 
         <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
             <a-sky src="./images/intro.jpg"></a-sky>
-            <a-plane id="scene1-button" position="0 1.5 -1" width="1" height="0.5" color="white" visible="false"
-                text="value: Scene 1; align: center; width: 5; color: black;"
-                event-set__enter="_event: mouseenter; material.opacity: 0.7"
-                event-set__leave="_event: mouseleave; material.opacity: 1">
+            <a-plane id="scene1-button" class="clickable" position="0 1.5 -1" width="1" height="0.5" color="white" visible="false"
+                text="value: Scene 1; align: center; width: 5; color: black;">
             </a-plane>
         </a-entity>
 
@@ -60,9 +55,7 @@
         
             <!-- Scene 2 Button -->
             <a-plane id="scene2-button" class="clickable" position="0 -1 -2" width="1" height="0.5" color="red" visible="false"
-                text="value: To Scene 2; align: center; color: white;"
-                event-set__enter="_event: mouseenter; material.opacity: 0.7"
-                event-set__leave="_event: mouseleave; material.opacity: 1">
+                text="value: To Scene 2; align: center; color: white;">
             </a-plane>
         </a-entity>
 
@@ -99,7 +92,6 @@
                     // Show "Scene 1" button after audio ends
                     setTimeout(() => {
                         scene1Button.setAttribute("visible", "true");
-                        scene1Button.classList.add("clickable");
                     }, 24000);
                 }
 
@@ -134,7 +126,6 @@
             }, 103000);
         }
 
-        // Fix: Right-hand controller clicking "Scene 1" button
         scene1Button.addEventListener("click", goToScene1);
     </script>
 
@@ -156,11 +147,9 @@
                 currentGazeStart = performance.now();
                 currentPlane = this.id;
 
-                if (reactionTimes[currentPlane] !== null) return; // Reaction time can't be changed
-
-                reactionTimes[currentPlane] = performance.now() - reactionTimes[currentPlane];
-
-                updateGazeDisplay();
+                if (reactionTimes[currentPlane] === null) {
+                    reactionTimes[currentPlane] = performance.now();
+                }
             });
 
             plane.addEventListener("mouseleave", function () {
