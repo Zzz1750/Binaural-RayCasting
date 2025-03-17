@@ -34,7 +34,6 @@
         <a-entity id="intro-scene" visible="false">
             <a-sky src="./images/intro.jpg"></a-sky>
             <a-plane id="scene1-button" position="0 1.5 -1" width="1" height="0.5" color="white" visible="false"
-                class="clickable"
                 text="value: Scene 1; align: center; width: 5; color: black;"
                 event-set__enter="_event: mouseenter; material.opacity: 0.7"
                 event-set__leave="_event: mouseleave; material.opacity: 1">
@@ -96,8 +95,10 @@
                     // Show "Scene 1" button after audio ends
                     setTimeout(() => {
                         scene1Button.setAttribute("visible", "true");
+                        scene1Button.setAttribute("position", "0 1.5 -1"); // Move forward when visible
                         scene1Button.classList.add("clickable"); // Ensure it's clickable
                     }, 24000);
+                    
                 }
 
                 if (introAudio.readyState >= 3) { 
@@ -112,8 +113,6 @@
         }
 
         function goToScene1() {
-            console.log("Scene 1 Button Clicked!");
-            alert("Scene 1 Button Clicked!");
 
             introScene.setAttribute("visible", "false");
             scene1.setAttribute("visible", "true");
