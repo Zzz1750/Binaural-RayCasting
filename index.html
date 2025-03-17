@@ -33,12 +33,14 @@
         <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
             <a-sky src="./images/intro.jpg"></a-sky>
-            <a-plane id="scene1-button" position="0 1.5 -3" width="1" height="0.5" color="white" visible="false"
-                class="clickable"
-                text="value: Scene 1; align: center; width: 5; color: black;"
-                event-set__enter="_event: mouseenter; material.opacity: 0.7"
-                event-set__leave="_event: mouseleave; material.opacity: 1">
-            </a-plane>
+            <<a-plane id="scene1-button" position="0 1.5 -2" width="1" height="0.5" color="white" visible="false"
+            class="clickable"
+            text="value: Scene 1; align: center; width: 5; color: black;"
+            event-set__enter="_event: mouseenter; material.opacity: 0.7"
+            event-set__leave="_event: mouseleave; material.opacity: 1"
+            event-set__click="_event: click; _target: #scene1-button; _delay: 0; _call: goToScene1">
+        </a-plane>
+        
         </a-entity>
 
         <!-- Scene 1 -->
