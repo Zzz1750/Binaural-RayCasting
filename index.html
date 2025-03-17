@@ -25,7 +25,7 @@
 
     <a-scene id="vr-scene" vr-mode-ui="enabled: true">
         <!-- Right Hand Controller -->
-        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable;"></a-entity>
+        <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable; showLine: true; ignoreInvisible: true;"></a-entity>
 
         <!-- Preload Audio (Hidden) -->
         <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
@@ -46,8 +46,8 @@
             <a-sky src="./images/1.png"></a-sky>
         
             <!-- Gaze Planes -->
-            <!-- <a-plane id="main_entrance" class="gaze-plane clickable" position="0 1.5 -3" width="2" height="2" color="blue"></a-plane>
-            <a-plane id="roof_sculpture" class="gaze-plane clickable" position="2 1.5 -3" width="2" height="2" color="green"></a-plane> -->
+            <a-plane id="main_entrance" class="gaze-plane clickable" position="0 1.5 -3" width="2" height="2" color="blue"></a-plane>
+            <a-plane id="roof_sculpture" class="gaze-plane clickable" position="2 1.5 -3" width="2" height="2" color="green"></a-plane>
         
             <!-- Scene 1 Audio -->
             <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto"></audio>
