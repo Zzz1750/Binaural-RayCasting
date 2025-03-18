@@ -117,15 +117,20 @@
         let scene2GazeDisplay = document.getElementById("scene2-gaze-data-display");
 
         let gazeData = {
-            main_entrance: { total: 0, longest: 0, reaction: null },
-            roof_sculpture: { total: 0, longest: 0, reaction: null },
-            mosaic_tiles: { total: 0, longest: 0, reaction: null },
-            wood_carvings: { total: 0, longest: 0, reaction: null }
+            scene1: {
+                main_entrance: { total: 0, longest: 0, reaction: null },
+                roof_sculpture: { total: 0, longest: 0, reaction: null }
+            },
+            scene2: {
+                mosaic_tiles: { total: 0, longest: 0, reaction: null },
+                wood_carvings: { total: 0, longest: 0, reaction: null }
+            }
         };
 
         let audioStartTimes = {};
         let currentGazeStart = null;
         let currentPlane = null;
+        let currentScene = null;
 
         function startVR() {
             let name = document.getElementById("username").value;
@@ -163,6 +168,7 @@
         function goToScene1() {
             introScene.setAttribute("visible", "false");
             scene1.setAttribute("visible", "true");
+            currentScene = "scene1";
 
             mainEntrancePlane.setAttribute("visible", "true");
             roofSculpturePlane.setAttribute("visible", "true");
@@ -184,6 +190,11 @@
         function goToScene2() {
             scene1.setAttribute("visible", "false");
             scene2.setAttribute("visible", "true");
+            currentScene = "scene2";
+
+            // Stop Scene 1 audio
+            mainEntranceAudio.pause();
+            roofSculptureAudio.pause();
 
             // Remove clickable from Scene 1 elements
             scene2Button.classList.remove("clickable");
@@ -222,18 +233,18 @@
             currentGazeStart = performance.now();
             currentPlane = plane.id;
 
-            if (audioStartTimes[currentPlane] && gazeData[currentPlane].reaction === null) {
-                gazeData[currentPlane].reaction = (performance.now() - audioStartTimes[currentPlane]) / 1000;
+            if (audioStartTimes[currentPlane] && gazeData[currentScene][currentPlane].reaction === null) {
+                gazeData[currentScene][currentPlane].reaction = (performance.now() - audioStartTimes[currentPlane]) / 1000;
             }
         });
 
         headRig.addEventListener("raycaster-intersection-cleared", () => {
             if (currentGazeStart) {
                 let gazeDuration = performance.now() - currentGazeStart;
-                gazeData[currentPlane].total += gazeDuration / 1000;
+                gazeData[currentScene][currentPlane].total += gazeDuration / 1000;
 
-                if (gazeDuration > gazeData[currentPlane].longest * 1000) {
-                    gazeData[currentPlane].longest = gazeDuration / 1000;
+                if (gazeDuration > gazeData[currentScene][currentPlane].longest * 1000) {
+                    gazeData[currentScene][currentPlane].longest = gazeDuration / 1000;
                 }
 
                 currentGazeStart = null;
@@ -242,15 +253,17 @@
         });
 
         function updateGazeDisplay() {
-            gazeDisplay.setAttribute("text", "value: " +
-                `Main Entrance:\n Total: ${gazeData.main_entrance.total.toFixed(1)}s \n Longest: ${gazeData.main_entrance.longest.toFixed(1)}s \n Reaction: ${gazeData.main_entrance.reaction !== null ? gazeData.main_entrance.reaction.toFixed(1) + "s" : "N/A"} \n\n` +
-                `Roof Sculpture:\n Total: ${gazeData.roof_sculpture.total.toFixed(1)}s \n Longest: ${gazeData.roof_sculpture.longest.toFixed(1)}s \n Reaction: ${gazeData.roof_sculpture.reaction !== null ? gazeData.roof_sculpture.reaction.toFixed(1) + "s" : "N/A"}; color: white;`
-            );
-
-            scene2GazeDisplay.setAttribute("text", "value: " +
-                `Mosaic Tiles:\n Total: ${gazeData.mosaic_tiles.total.toFixed(1)}s \n Longest: ${gazeData.mosaic_tiles.longest.toFixed(1)}s \n Reaction: ${gazeData.mosaic_tiles.reaction !== null ? gazeData.mosaic_tiles.reaction.toFixed(1) + "s" : "N/A"} \n\n` +
-                `Wood Carvings:\n Total: ${gazeData.wood_carvings.total.toFixed(1)}s \n Longest: ${gazeData.wood_carvings.longest.toFixed(1)}s \n Reaction: ${gazeData.wood_carvings.reaction !== null ? gazeData.wood_carvings.reaction.toFixed(1) + "s" : "N/A"}; color: white;`
-            );
+            if (currentScene === "scene1") {
+                gazeDisplay.setAttribute("text", "value: " +
+                    `Main Entrance:\n Total: ${gazeData.scene1.main_entrance.total.toFixed(1)}s \n Longest: ${gazeData.scene1.main_entrance.longest.toFixed(1)}s \n Reaction: ${gazeData.scene1.main_entrance.reaction !== null ? gazeData.scene1.main_entrance.reaction.toFixed(1) + "s" : "N/A"} \n\n` +
+                    `Roof Sculpture:\n Total: ${gazeData.scene1.roof_sculpture.total.toFixed(1)}s \n Longest: ${gazeData.scene1.roof_sculpture.longest.toFixed(1)}s \n Reaction: ${gazeData.scene1.roof_sculpture.reaction !== null ? gazeData.scene1.roof_sculpture.reaction.toFixed(1) + "s" : "N/A"}; color: white;`
+                );
+            } else if (currentScene === "scene2") {
+                scene2GazeDisplay.setAttribute("text", "value: " +
+                    `Mosaic Tiles:\n Total: ${gazeData.scene2.mosaic_tiles.total.toFixed(1)}s \n Longest: ${gazeData.scene2.mosaic_tiles.longest.toFixed(1)}s \n Reaction: ${gazeData.scene2.mosaic_tiles.reaction !== null ? gazeData.scene2.mosaic_tiles.reaction.toFixed(1) + "s" : "N/A"} \n\n` +
+                    `Wood Carvings:\n Total: ${gazeData.scene2.wood_carvings.total.toFixed(1)}s \n Longest: ${gazeData.scene2.wood_carvings.longest.toFixed(1)}s \n Reaction: ${gazeData.scene2.wood_carvings.reaction !== null ? gazeData.scene2.wood_carvings.reaction.toFixed(1) + "s" : "N/A"}; color: white;`
+                );
+            }
         }
     </script> 
 
