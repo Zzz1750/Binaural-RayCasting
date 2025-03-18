@@ -272,6 +272,72 @@
             }
         }
     </script> 
+    <script>
+        // Function to send data to SheetDB API
+        function sendDataToSheetDB(data) {
+            const apiUrl = "https://sheetdb.io/api/v1/hhp8it5b5191i"; // Replace with your SheetDB API URL
+
+            fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Data successfully sent to SheetDB:", data);
+                alert("Data submitted successfully!");
+            })
+            .catch(error => {
+                console.error("Error sending data to SheetDB:", error);
+                alert("Failed to submit data. Please try again.");
+            });
+        }
+
+        // Function to handle the Finish button click
+        function onFinishButtonClick() {
+            const name = document.getElementById("username").value;
+
+            // Prepare the data for SheetDB
+            const data = [
+                {
+                    Name: name,
+                    Plane: "Main Entrance",
+                    "Total Gaze Time (s)": gazeData.scene1.main_entrance.total.toFixed(1),
+                    "Longest Gaze (s)": gazeData.scene1.main_entrance.longest.toFixed(1),
+                    "Reaction Time (s)": gazeData.scene1.main_entrance.reaction !== null ? gazeData.scene1.main_entrance.reaction.toFixed(1) : "N/A",
+                },
+                {
+                    Name: name,
+                    Plane: "Roof Sculpture",
+                    "Total Gaze Time (s)": gazeData.scene1.roof_sculpture.total.toFixed(1),
+                    "Longest Gaze (s)": gazeData.scene1.roof_sculpture.longest.toFixed(1),
+                    "Reaction Time (s)": gazeData.scene1.roof_sculpture.reaction !== null ? gazeData.scene1.roof_sculpture.reaction.toFixed(1) : "N/A",
+                },
+                {
+                    Name: name,
+                    Plane: "Mosaic Tiles",
+                    "Total Gaze Time (s)": gazeData.scene2.mosaic_tiles.total.toFixed(1),
+                    "Longest Gaze (s)": gazeData.scene2.mosaic_tiles.longest.toFixed(1),
+                    "Reaction Time (s)": gazeData.scene2.mosaic_tiles.reaction !== null ? gazeData.scene2.mosaic_tiles.reaction.toFixed(1) : "N/A",
+                },
+                {
+                    Name: name,
+                    Plane: "Wood Carvings",
+                    "Total Gaze Time (s)": gazeData.scene2.wood_carvings.total.toFixed(1),
+                    "Longest Gaze (s)": gazeData.scene2.wood_carvings.longest.toFixed(1),
+                    "Reaction Time (s)": gazeData.scene2.wood_carvings.reaction !== null ? gazeData.scene2.wood_carvings.reaction.toFixed(1) : "N/A",
+                },
+            ];
+
+            // Send the data to SheetDB
+            sendDataToSheetDB(data);
+        }
+
+        // Add event listener to the Finish button
+        document.getElementById("finish-button").addEventListener("click", onFinishButtonClick);
+    </script>
 
 </body>
 </html>
