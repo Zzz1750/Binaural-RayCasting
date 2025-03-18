@@ -16,6 +16,7 @@
 </head>
 <body>
 
+    <!-- Name Input Form -->
     <div id="name-form">
         <label for="username">Enter Your Name:</label>
         <input type="text" id="username" required>
@@ -24,206 +25,282 @@
 
     <a-scene id="vr-scene" vr-mode-ui="enabled: true">
         
-        <!-- Controllers -->
+        <!-- Right Hand Controller (For Clicking Buttons Only) -->
         <a-entity id="right-hand" laser-controls="hand: right" 
             raycaster="objects: .clickable; showLine: true; interval: 100; color: yellow;">
         </a-entity>
 
+        <!-- Headset Raycaster (For Gaze Tracking) -->
         <a-entity id="head-rig" camera position="0 1.6 0"
             raycaster="objects: .gaze-plane; showLine: false; interval: 100">
         </a-entity>
 
-        <!-- Audio Elements -->
-        <audio id="intro-audio" src="./audio/intro.wav" preload="auto"></audio>
-        <audio id="mosaic_tiles_audio" src="./audio/mosaic_tiles.wav" preload="auto"></audio>
-        <audio id="wood_carvings_audio" src="./audio/wood_carvings.wav" preload="auto"></audio>
-
-        <!-- Scenes -->
+        <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
-            <a-sky src="./images/intro.jpg"></a-sky>
-            <a-plane id="scene1-button" position="0 1.5 -1" width="1" height="0.5" 
-                     color="white" visible="false" class="clickable"
-                     text="value: Scene 1; align: center; width: 5; color: black;">
+            <a-sky id="intro-sky"></a-sky>
+            <a-plane id="scene1-button" position="0 1.5 -1" width="1" height="0.5" color="white" visible="false"
+                text="value: Scene 1; align: center; width: 5; color: black;">
             </a-plane>
         </a-entity>
 
         <!-- Scene 1 -->
         <a-entity id="scene-1" visible="false">
-            <a-sky src="./images/1.png"></a-sky>
-            <a-plane id="main_entrance" class="gaze-plane" position="0 1.5 -4" 
-                     width="2" height="2" color="blue" visible="false"></a-plane>
-            <a-plane id="roof_sculpture" class="gaze-plane" position="2 1.5 -4" 
-                     width="2" height="2" color="green" visible="false"></a-plane>
-            <a-plane id="scene2-button" position="0 -1 -2" width="1" height="0.5" 
-                     color="red" visible="false" class="clickable"
-                     text="value: To Scene 2; align: center; color: white;">
+            <a-sky id="scene1-sky"></a-sky>
+
+            <!-- Gaze Planes (For Headset Tracking) -->
+            <a-plane id="main_entrance" class="gaze-plane" position="0 1.5 -4" width="2" height="2" color="blue" visible="false"></a-plane>
+            <a-plane id="roof_sculpture" class="gaze-plane" position="2 1.5 -4" width="2" height="2" color="green" visible="false"></a-plane>
+
+            <!-- Display Gaze Data -->
+            <a-entity id="gaze-data-display" position="-1 2 -2" text="value: Loading...; align: center; color: white; width: 2;"></a-entity>
+
+            <!-- Scene 2 Button -->
+            <a-plane id="scene2-button" position="0 -1 -2" width="1" height="0.5" color="red" visible="false"
+                text="value: To Scene 2; align: center; color: white;">
             </a-plane>
         </a-entity>
 
         <!-- Scene 2 -->
         <a-entity id="scene-2" visible="false">
-            <a-sky src="./images/2.png"></a-sky>
-            <a-plane id="mosaic_tiles" class="gaze-plane" position="-2 1.5 -4" 
-                     width="2" height="2" color="purple" visible="false"></a-plane>
-            <a-plane id="wood_carvings" class="gaze-plane" position="2 1.5 -4" 
-                     width="2" height="2" color="orange" visible="false"></a-plane>
-            <a-plane id="finish-button" position="0 -1 -2" width="1" height="0.5" 
-                     color="blue" visible="false" class="clickable"
-                     text="value: Finish; align: center; color: white;">
+            <a-sky id="scene2-sky"></a-sky>
+
+            <!-- Gaze Planes (For Headset Tracking) -->
+            <a-plane id="mosaic_tiles" class="gaze-plane" position="0 1.5 -4" width="2" height="2" color="purple" visible="false"
+                text="value: Mosaic Tiles; align: center; color: white;">
+            </a-plane>
+            <a-plane id="wood_carvings" class="gaze-plane" position="2 1.5 -4" width="2" height="2" color="brown" visible="false"
+                text="value: Wood Carvings; align: center; color: white;">
+            </a-plane>
+
+            <!-- Display Gaze Data -->
+            <a-entity id="scene2-gaze-data-display" position="-1 2 -2" text="value: Loading...; align: center; color: white; width: 2;"></a-entity>
+
+            <!-- Finish Button -->
+            <a-plane id="finish-button" position="0 -1 -2" width="1" height="0.5" color="green" visible="false"
+                text="value: Finish; align: center; color: white;">
             </a-plane>
         </a-entity>
 
     </a-scene>
 
-<script>
-    // DOM Elements
-    const sceneEl = document.getElementById("vr-scene");
-    const introScene = document.getElementById("intro-scene");
-    const scene1 = document.getElementById("scene-1");
-    const scene2 = document.getElementById("scene-2");
-    
-    // Buttons
-    const scene1Button = document.getElementById("scene1-button");
-    const scene2Button = document.getElementById("scene2-button");
-    const finishButton = document.getElementById("finish-button");
+    <script>
+        let sceneEl = document.getElementById("vr-scene");
+        let introScene = document.getElementById("intro-scene");
+        let scene1Button = document.getElementById("scene1-button");
+        let scene1 = document.getElementById("scene-1");
+        let scene2Button = document.getElementById("scene2-button");
+        let scene2 = document.getElementById("scene-2");
 
-    // Scene 1 Elements
-    const mainEntrancePlane = document.getElementById("main_entrance");
-    const roofSculpturePlane = document.getElementById("roof_sculpture");
+        let mainEntrancePlane = document.getElementById("main_entrance");
+        let roofSculpturePlane = document.getElementById("roof_sculpture");
 
-    // Scene 2 Elements
-    const mosaicTilesPlane = document.getElementById("mosaic_tiles");
-    const woodCarvingPlane = document.getElementById("wood_carvings");
+        let mosaicTilesPlane = document.getElementById("mosaic_tiles");
+        let woodCarvingsPlane = document.getElementById("wood_carvings");
 
-    // Audio Elements
-    const introAudio = document.getElementById("intro-audio");
-    const mosaicTilesAudio = document.getElementById("mosaic_tiles_audio");
-    const woodCarvingAudio = document.getElementById("wood_carvings_audio");
+        let gazeDisplay = document.getElementById("gaze-data-display");
+        let scene2GazeDisplay = document.getElementById("scene2-gaze-data-display");
 
-    // Tracking Data
-    let gazeData = {};
-    let audioStartTimes = {};
-    let currentGazeStart = null;
-    let currentPlane = null;
-
-    function startVR() {
-        const name = document.getElementById("username").value.trim();
-        if (!name) return alert("Please enter your name");
-        
-        document.getElementById("name-form").style.display = "none";
-        initializeIntroScene();
-    }
-
-    function initializeIntroScene() {
-        introScene.setAttribute("visible", true);
-        introAudio.play();
-        
-        sceneEl.hasLoaded ? sceneEl.enterVR() : sceneEl.addEventListener("loaded", () => sceneEl.enterVR());
-        
-        setTimeout(() => {
-            scene1Button.setAttribute("visible", true);
-            scene1Button.classList.add("clickable");
-        }, 24000);
-    }
-
-    // Scene Transitions
-    function goToScene1() {
-        introScene.setAttribute("visible", false);
-        scene1.setAttribute("visible", true);
-        
-        // Initialize Scene 1
-        [mainEntrancePlane, roofSculpturePlane].forEach(plane => 
-            plane.setAttribute("visible", true));
-        
-        // Scene 1 Audio Sequence
-        audioStartTimes.main_entrance = performance.now();
-        setTimeout(() => audioStartTimes.roof_sculpture = performance.now(), 63000);
-        
-        // Show Scene 2 button after 103s
-        setTimeout(() => scene2Button.setAttribute("visible", true), 103000);
-    }
-
-    function goToScene2() {
-        // Cleanup Scene 1
-        scene1.setAttribute("visible", false);
-        scene2Button.classList.remove("clickable");
-        
-        // Initialize Scene 2
-        scene2.setAttribute("visible", true);
-        [mosaicTilesPlane, woodCarvingPlane].forEach(plane => 
-            plane.setAttribute("visible", true));
-        
-        // Scene 2 Audio Sequence
-        setTimeout(() => {
-            mosaicTilesAudio.play();
-            audioStartTimes.mosaic_tiles = performance.now();
-        }, 3000);
-
-        setTimeout(() => {
-            woodCarvingAudio.play();
-            audioStartTimes.wood_carvings = performance.now();
-        }, 56000);
-
-        // Show Finish button after 100s
-        setTimeout(() => finishButton.setAttribute("visible", true), 100000);
-    }
-
-    // Gaze Tracking System
-    document.getElementById("head-rig").addEventListener("raycaster-intersection", e => {
-        const plane = e.detail.els[0];
-        if (!plane?.getAttribute("visible")) return;
-
-        currentGazeStart = performance.now();
-        currentPlane = plane.id;
-
-        if (audioStartTimes[currentPlane] && !gazeData[currentPlane]?.reaction) {
-            gazeData[currentPlane].reaction = 
-                (performance.now() - audioStartTimes[currentPlane]) / 1000;
-        }
-    });
-
-    document.getElementById("head-rig").addEventListener("raycaster-intersection-cleared", () => {
-        if (!currentGazeStart) return;
-
-        const duration = (performance.now() - currentGazeStart) / 1000;
-        const data = gazeData[currentPlane];
-
-        data.total += duration;
-        data.longest = Math.max(data.longest, duration);
-        
-        currentGazeStart = null;
-        updateGazeDisplay();
-    });
-
-    function updateGazeDisplay() {
-        const displayText = Object.entries(gazeData).map(([name, data]) => 
-            `${name.replace(/_/g, ' ').toUpperCase()}:\n` +
-            `Total: ${data.total.toFixed(1)}s\n` +
-            `Longest: ${data.longest.toFixed(1)}s\n` +
-            `Reaction: ${data.reaction?.toFixed(1) || 'N/A'}s`
-        ).join('\n\n');
-
-        document.getElementById("gaze-data-display").setAttribute("text", `value: ${displayText}`);
-    }
-
-    // Event Listeners
-    scene1Button.addEventListener("click", goToScene1);
-    scene2Button.addEventListener("click", goToScene2);
-    finishButton.addEventListener("click", () => console.log("Finish button clicked"));
-
-    // Initialize Data Structures
-    function resetGazeData() {
-        gazeData = {
+        let gazeData = {
+            main_entrance: { total: 0, longest: 0, reaction: null },
+            roof_sculpture: { total: 0, longest: 0, reaction: null },
             mosaic_tiles: { total: 0, longest: 0, reaction: null },
             wood_carvings: { total: 0, longest: 0, reaction: null }
         };
-    }
-    resetGazeData();
 
-    // Audio Pre-load Handling
-    [introAudio, mosaicTilesAudio, woodCarvingAudio].forEach(audio => {
-        if (audio.readyState < 3) audio.load();
-    });
-</script>
+        let audioStartTimes = {};
+        let currentGazeStart = null;
+        let currentPlane = null;
+
+        // Function to load assets dynamically
+        function loadAsset(src, type, callback) {
+            let asset;
+            if (type === "image") {
+                asset = new Image();
+                asset.src = src;
+            } else if (type === "audio") {
+                asset = new Audio(src);
+            }
+
+            asset.onload = asset.oncanplaythrough = () => {
+                if (callback) callback(asset);
+            };
+            asset.onerror = (error) => {
+                console.error(`Error loading ${type} asset:`, error);
+            };
+            return asset;
+        }
+
+        // Start VR
+        function startVR() {
+            let name = document.getElementById("username").value;
+            if (name.trim() === "") {
+                alert("Please enter your name");
+                return;
+            }
+
+            document.getElementById("name-form").style.display = "none";
+
+            // Load intro assets
+            loadAsset("./images/intro.jpg", "image", (image) => {
+                document.getElementById("intro-sky").setAttribute("src", image.src);
+            });
+
+            let introAudio = loadAsset("./audio/intro.wav", "audio", (audio) => {
+                introScene.setAttribute("visible", "true");
+                audio.play().then(() => {
+                    console.log("Intro audio is playing");
+                }).catch((error) => {
+                    console.error("Error playing intro audio:", error);
+                });
+
+                if (sceneEl.hasLoaded) {
+                    sceneEl.enterVR();
+                } else {
+                    sceneEl.addEventListener("loaded", () => sceneEl.enterVR());
+                }
+
+                setTimeout(() => {
+                    scene1Button.setAttribute("visible", "true");
+                    scene1Button.classList.add("clickable");
+                }, 24000);
+
+                // Load Scene 1 assets while intro is running
+                loadAsset("./images/1.png", "image", (image) => {
+                    document.getElementById("scene1-sky").setAttribute("src", image.src);
+                });
+
+                loadAsset("./audio/main_entrance.wav", "audio");
+                loadAsset("./audio/roof_sculpture.wav", "audio");
+            });
+        }
+
+        // Go to Scene 1
+        function goToScene1() {
+            introScene.setAttribute("visible", "false");
+            scene1.setAttribute("visible", "true");
+
+            mainEntrancePlane.setAttribute("visible", "true");
+            roofSculpturePlane.setAttribute("visible", "true");
+
+            let mainEntranceAudio = loadAsset("./audio/main_entrance.wav", "audio", (audio) => {
+                audio.play().then(() => {
+                    console.log("Main entrance audio is playing");
+                    audioStartTimes.main_entrance = performance.now();
+                }).catch((error) => {
+                    console.error("Error playing main entrance audio:", error);
+                });
+            });
+
+            setTimeout(() => {
+                let roofSculptureAudio = loadAsset("./audio/roof_sculpture.wav", "audio", (audio) => {
+                    audio.play().then(() => {
+                        console.log("Roof sculpture audio is playing");
+                        audioStartTimes.roof_sculpture = performance.now();
+                    }).catch((error) => {
+                        console.error("Error playing roof sculpture audio:", error);
+                    });
+                });
+            }, 63000);
+
+            setTimeout(() => {
+                scene2Button.setAttribute("visible", "true");
+                scene2Button.classList.add("clickable");
+            }, 103000);
+
+            // Load Scene 2 assets while Scene 1 is running
+            loadAsset("./images/2.png", "image", (image) => {
+                document.getElementById("scene2-sky").setAttribute("src", image.src);
+            });
+
+            loadAsset("./audio/mosaic_tiles.wav", "audio");
+            loadAsset("./audio/wood_carvings.wav", "audio");
+        }
+
+        // Go to Scene 2
+        function goToScene2() {
+            scene1.setAttribute("visible", "false");
+            scene2.setAttribute("visible", "true");
+
+            // Remove clickable from Scene 1 elements
+            scene2Button.classList.remove("clickable");
+
+            // Make Scene 2 planes visible and clickable
+            mosaicTilesPlane.setAttribute("visible", "true");
+            woodCarvingsPlane.setAttribute("visible", "true");
+
+            // Play first audio after 3 seconds
+            setTimeout(() => {
+                let mosaicTilesAudio = loadAsset("./audio/mosaic_tiles.wav", "audio", (audio) => {
+                    audio.play().then(() => {
+                        console.log("Mosaic tiles audio is playing");
+                        audioStartTimes.mosaic_tiles = performance.now();
+                    }).catch((error) => {
+                        console.error("Error playing mosaic tiles audio:", error);
+                    });
+                });
+            }, 3000);
+
+            // Play second audio after 56 seconds
+            setTimeout(() => {
+                let woodCarvingsAudio = loadAsset("./audio/wood_carvings.wav", "audio", (audio) => {
+                    audio.play().then(() => {
+                        console.log("Wood carvings audio is playing");
+                        audioStartTimes.wood_carvings = performance.now();
+                    }).catch((error) => {
+                        console.error("Error playing wood carvings audio:", error);
+                    });
+                });
+            }, 56000);
+
+            // Show Finish button after 100 seconds
+            setTimeout(() => {
+                document.getElementById("finish-button").setAttribute("visible", "true");
+                document.getElementById("finish-button").classList.add("clickable");
+            }, 100000);
+        }
+
+        scene1Button.addEventListener("click", goToScene1);
+        scene2Button.addEventListener("click", goToScene2);
+
+        let headRig = document.getElementById("head-rig");
+        headRig.addEventListener("raycaster-intersection", (event) => {
+            let plane = event.detail.els[0];
+            if (!plane || !plane.getAttribute("visible")) return;
+
+            currentGazeStart = performance.now();
+            currentPlane = plane.id;
+
+            if (audioStartTimes[currentPlane] && gazeData[currentPlane].reaction === null) {
+                gazeData[currentPlane].reaction = (performance.now() - audioStartTimes[currentPlane]) / 1000;
+            }
+        });
+
+        headRig.addEventListener("raycaster-intersection-cleared", () => {
+            if (currentGazeStart) {
+                let gazeDuration = performance.now() - currentGazeStart;
+                gazeData[currentPlane].total += gazeDuration / 1000;
+
+                if (gazeDuration > gazeData[currentPlane].longest * 1000) {
+                    gazeData[currentPlane].longest = gazeDuration / 1000;
+                }
+
+                currentGazeStart = null;
+                updateGazeDisplay();
+            }
+        });
+
+        function updateGazeDisplay() {
+            gazeDisplay.setAttribute("text", "value: " +
+                `Main Entrance:\n Total: ${gazeData.main_entrance.total.toFixed(1)}s \n Longest: ${gazeData.main_entrance.longest.toFixed(1)}s \n Reaction: ${gazeData.main_entrance.reaction !== null ? gazeData.main_entrance.reaction.toFixed(1) + "s" : "N/A"} \n\n` +
+                `Roof Sculpture:\n Total: ${gazeData.roof_sculpture.total.toFixed(1)}s \n Longest: ${gazeData.roof_sculpture.longest.toFixed(1)}s \n Reaction: ${gazeData.roof_sculpture.reaction !== null ? gazeData.roof_sculpture.reaction.toFixed(1) + "s" : "N/A"}; color: white;`
+            );
+
+            scene2GazeDisplay.setAttribute("text", "value: " +
+                `Mosaic Tiles:\n Total: ${gazeData.mosaic_tiles.total.toFixed(1)}s \n Longest: ${gazeData.mosaic_tiles.longest.toFixed(1)}s \n Reaction: ${gazeData.mosaic_tiles.reaction !== null ? gazeData.mosaic_tiles.reaction.toFixed(1) + "s" : "N/A"} \n\n` +
+                `Wood Carvings:\n Total: ${gazeData.wood_carvings.total.toFixed(1)}s \n Longest: ${gazeData.wood_carvings.longest.toFixed(1)}s \n Reaction: ${gazeData.wood_carvings.reaction !== null ? gazeData.wood_carvings.reaction.toFixed(1) + "s" : "N/A"}; color: white;`
+            );
+        }
+    </script> 
+
 </body>
 </html>
