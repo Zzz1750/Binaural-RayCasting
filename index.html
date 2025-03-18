@@ -94,6 +94,7 @@
     </a-scene>
 
     <script>
+        // Variables
         let introAudio = document.getElementById("intro-audio");
         let sceneEl = document.getElementById("vr-scene");
         let introScene = document.getElementById("intro-scene");
@@ -132,10 +133,7 @@
         let currentPlane = null;
         let currentScene = null;
 
-        // Timeout IDs for Scene 2 audio
-        let scene2AudioTimeout1 = null;
-        let scene2AudioTimeout2 = null;
-
+        // Start VR
         function startVR() {
             let name = document.getElementById("username").value;
             if (name.trim() === "") {
@@ -169,6 +167,7 @@
             }
         }
 
+        // Go to Scene 1
         function goToScene1() {
             introScene.setAttribute("visible", "false");
             scene1.setAttribute("visible", "true");
@@ -191,8 +190,8 @@
             }, 103000);
         }
 
+        // Go to Scene 2
         function goToScene2() {
-            // Hide Scene 1 and show Scene 2
             scene1.setAttribute("visible", "false");
             scene2.setAttribute("visible", "true");
             currentScene = "scene2";
@@ -201,11 +200,11 @@
             mainEntranceAudio.pause();
             roofSculptureAudio.pause();
 
-            // Disable Scene 1 gaze planes (remove the 'gaze-plane' class)
+            // Disable Scene 1 gaze planes
             mainEntrancePlane.classList.remove("gaze-plane");
             roofSculpturePlane.classList.remove("gaze-plane");
 
-            // Enable Scene 2 gaze planes (add the 'gaze-plane' class)
+            // Enable Scene 2 gaze planes
             mosaicTilesPlane.classList.add("gaze-plane");
             woodCarvingsPlane.classList.add("gaze-plane");
 
@@ -213,18 +212,14 @@
             mosaicTilesPlane.setAttribute("visible", "true");
             woodCarvingsPlane.setAttribute("visible", "true");
 
-            // Clear any existing timeouts for Scene 2 audio
-            if (scene2AudioTimeout1) clearTimeout(scene2AudioTimeout1);
-            if (scene2AudioTimeout2) clearTimeout(scene2AudioTimeout2);
-
             // Play first audio after 3 seconds
-            scene2AudioTimeout1 = setTimeout(() => {
+            setTimeout(() => {
                 mosaicTilesAudio.play();
                 audioStartTimes.mosaic_tiles = performance.now();
             }, 3000);
 
             // Play second audio after 56 seconds
-            scene2AudioTimeout2 = setTimeout(() => {
+            setTimeout(() => {
                 woodCarvingsAudio.play();
                 audioStartTimes.wood_carvings = performance.now();
             }, 56000);
@@ -236,9 +231,11 @@
             }, 100000);
         }
 
+        // Event Listeners
         scene1Button.addEventListener("click", goToScene1);
         scene2Button.addEventListener("click", goToScene2);
 
+        // Gaze Tracking
         let headRig = document.getElementById("head-rig");
         headRig.addEventListener("raycaster-intersection", (event) => {
             let plane = event.detail.els[0];
@@ -266,6 +263,7 @@
             }
         });
 
+        // Update Gaze Display
         function updateGazeDisplay() {
             if (currentScene === "scene1") {
                 gazeDisplay.setAttribute("text", "value: " +
@@ -280,29 +278,36 @@
             }
         }
 
-        // Function to send data to SheetDB API
+        // Send Data to SheetDB
         function sendDataToSheetDB(data) {
             const apiUrl = "https://sheetdb.io/api/v1/hhp8it5b5191i"; // Replace with your SheetDB API URL
+
+            console.log("Sending data to SheetDB:", data); // Debugging: Log the data being sent
 
             fetch(apiUrl, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ data: data }), // Wrap data in a "data" object
+                body: JSON.stringify({ data }), // Wrap data in a "data" object as required by SheetDB
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log("Data successfully sent to SheetDB:", data);
                 alert("Data submitted successfully!");
             })
             .catch(error => {
                 console.error("Error sending data to SheetDB:", error);
-                alert("Failed to submit data. Please try again.");
+                alert("Failed to submit data. Please check the console for details.");
             });
         }
 
-        // Function to handle the Finish button click
+        // Finish Button Click Handler
         function onFinishButtonClick() {
             const name = document.getElementById("username").value;
 
@@ -337,6 +342,8 @@
                     "Reaction Time (s)": gazeData.scene2.wood_carvings.reaction !== null ? gazeData.scene2.wood_carvings.reaction.toFixed(1) : "N/A",
                 },
             ];
+
+            console.log("Prepared data for SheetDB:", data); // Debugging: Log the prepared data
 
             // Send the data to SheetDB
             sendDataToSheetDB(data);
