@@ -165,6 +165,28 @@
             }
         }
 
+        function goToScene1() {
+            introScene.setAttribute("visible", "false");
+            scene1.setAttribute("visible", "true");
+            currentScene = "scene1";
+
+            mainEntrancePlane.setAttribute("visible", "true");
+            roofSculpturePlane.setAttribute("visible", "true");
+
+            mainEntranceAudio.play();
+            audioStartTimes.main_entrance = performance.now();
+
+            setTimeout(() => {
+                roofSculptureAudio.play();
+                audioStartTimes.roof_sculpture = performance.now();
+            }, 63000);
+
+            setTimeout(() => {
+                scene2Button.setAttribute("visible", "true");
+                scene2Button.classList.add("clickable");
+            }, 103000);
+        }
+
         function goToScene2() {
             // Hide Scene 1 and show Scene 2
             scene1.setAttribute("visible", "false");
@@ -199,41 +221,6 @@
                 audioStartTimes.wood_carvings = performance.now();
             }, 56000);
         
-            // Show Finish button after 100 seconds
-            setTimeout(() => {
-                document.getElementById("finish-button").setAttribute("visible", "true");
-                document.getElementById("finish-button").classList.add("clickable");
-            }, 100000);
-        }
-
-        function goToScene2() {
-            scene1.setAttribute("visible", "false");
-            scene2.setAttribute("visible", "true");
-            currentScene = "scene2";
-
-            // Stop Scene 1 audio
-            mainEntranceAudio.pause();
-            roofSculptureAudio.pause();
-
-            // Remove clickable from Scene 1 elements
-            scene2Button.classList.remove("clickable");
-
-            // Make Scene 2 planes visible and clickable
-            mosaicTilesPlane.setAttribute("visible", "true");
-            woodCarvingsPlane.setAttribute("visible", "true");
-
-            // Play first audio after 3 seconds
-            setTimeout(() => {
-                mosaicTilesAudio.play();
-                audioStartTimes.mosaic_tiles = performance.now();
-            }, 3000);
-
-            // Play second audio after 56 seconds
-            setTimeout(() => {
-                woodCarvingsAudio.play();
-                audioStartTimes.wood_carvings = performance.now();
-            }, 56000);
-
             // Show Finish button after 100 seconds
             setTimeout(() => {
                 document.getElementById("finish-button").setAttribute("visible", "true");
