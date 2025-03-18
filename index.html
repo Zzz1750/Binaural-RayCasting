@@ -132,6 +132,10 @@
         let currentPlane = null;
         let currentScene = null;
 
+        // Timeout IDs for Scene 2 audio
+        let scene2AudioTimeout1 = null;
+        let scene2AudioTimeout2 = null;
+
         function startVR() {
             let name = document.getElementById("username").value;
             if (name.trim() === "") {
@@ -192,35 +196,39 @@
             scene1.setAttribute("visible", "false");
             scene2.setAttribute("visible", "true");
             currentScene = "scene2";
-        
+
             // Stop Scene 1 audio
             mainEntranceAudio.pause();
             roofSculptureAudio.pause();
-        
+
             // Disable Scene 1 gaze planes (remove the 'gaze-plane' class)
             mainEntrancePlane.classList.remove("gaze-plane");
             roofSculpturePlane.classList.remove("gaze-plane");
-        
+
             // Enable Scene 2 gaze planes (add the 'gaze-plane' class)
             mosaicTilesPlane.classList.add("gaze-plane");
             woodCarvingsPlane.classList.add("gaze-plane");
-        
+
             // Make Scene 2 planes visible
             mosaicTilesPlane.setAttribute("visible", "true");
             woodCarvingsPlane.setAttribute("visible", "true");
-        
+
+            // Clear any existing timeouts for Scene 2 audio
+            if (scene2AudioTimeout1) clearTimeout(scene2AudioTimeout1);
+            if (scene2AudioTimeout2) clearTimeout(scene2AudioTimeout2);
+
             // Play first audio after 3 seconds
-            setTimeout(() => {
+            scene2AudioTimeout1 = setTimeout(() => {
                 mosaicTilesAudio.play();
                 audioStartTimes.mosaic_tiles = performance.now();
             }, 3000);
-        
+
             // Play second audio after 56 seconds
-            setTimeout(() => {
+            scene2AudioTimeout2 = setTimeout(() => {
                 woodCarvingsAudio.play();
                 audioStartTimes.wood_carvings = performance.now();
             }, 56000);
-        
+
             // Show Finish button after 100 seconds
             setTimeout(() => {
                 document.getElementById("finish-button").setAttribute("visible", "true");
@@ -271,8 +279,7 @@
                 );
             }
         }
-    </script> 
-    <script>
+
         // Function to send data to SheetDB API
         function sendDataToSheetDB(data) {
             const apiUrl = "https://sheetdb.io/api/v1/hhp8it5b5191i"; // Replace with your SheetDB API URL
@@ -282,7 +289,7 @@
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify({ data: data }), // Wrap data in a "data" object
             })
             .then(response => response.json())
             .then(data => {
@@ -338,6 +345,5 @@
         // Add event listener to the Finish button
         document.getElementById("finish-button").addEventListener("click", onFinishButtonClick);
     </script>
-
 </body>
 </html>
