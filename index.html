@@ -165,26 +165,45 @@
             }
         }
 
-        function goToScene1() {
-            introScene.setAttribute("visible", "false");
-            scene1.setAttribute("visible", "true");
-            currentScene = "scene1";
-
-            mainEntrancePlane.setAttribute("visible", "true");
-            roofSculpturePlane.setAttribute("visible", "true");
-
-            mainEntranceAudio.play();
-            audioStartTimes.main_entrance = performance.now();
-
+        function goToScene2() {
+            // Hide Scene 1 and show Scene 2
+            scene1.setAttribute("visible", "false");
+            scene2.setAttribute("visible", "true");
+            currentScene = "scene2";
+        
+            // Stop Scene 1 audio
+            mainEntranceAudio.pause();
+            roofSculptureAudio.pause();
+        
+            // Disable Scene 1 gaze planes (remove the 'gaze-plane' class)
+            mainEntrancePlane.classList.remove("gaze-plane");
+            roofSculpturePlane.classList.remove("gaze-plane");
+        
+            // Enable Scene 2 gaze planes (add the 'gaze-plane' class)
+            mosaicTilesPlane.classList.add("gaze-plane");
+            woodCarvingsPlane.classList.add("gaze-plane");
+        
+            // Make Scene 2 planes visible
+            mosaicTilesPlane.setAttribute("visible", "true");
+            woodCarvingsPlane.setAttribute("visible", "true");
+        
+            // Play first audio after 3 seconds
             setTimeout(() => {
-                roofSculptureAudio.play();
-                audioStartTimes.roof_sculpture = performance.now();
-            }, 63000);
-
+                mosaicTilesAudio.play();
+                audioStartTimes.mosaic_tiles = performance.now();
+            }, 3000);
+        
+            // Play second audio after 56 seconds
             setTimeout(() => {
-                scene2Button.setAttribute("visible", "true");
-                scene2Button.classList.add("clickable");
-            }, 103000);
+                woodCarvingsAudio.play();
+                audioStartTimes.wood_carvings = performance.now();
+            }, 56000);
+        
+            // Show Finish button after 100 seconds
+            setTimeout(() => {
+                document.getElementById("finish-button").setAttribute("visible", "true");
+                document.getElementById("finish-button").classList.add("clickable");
+            }, 100000);
         }
 
         function goToScene2() {
