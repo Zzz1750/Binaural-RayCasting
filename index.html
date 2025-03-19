@@ -89,6 +89,9 @@
             <a-plane id="finish-button" position="0 -1 -2" width="1" height="0.5" color="green" visible="false"
                 text="value: Finish; align: center; color: white;">
             </a-plane>
+
+            <!-- Feedback Text -->
+            <a-entity id="feedback-text" position="0 1 -2" text="value: ; align: center; color: white; width: 3;"></a-entity>
         </a-entity>
 
     </a-scene>
@@ -116,6 +119,7 @@
 
         let gazeDisplay = document.getElementById("gaze-data-display");
         let scene2GazeDisplay = document.getElementById("scene2-gaze-data-display");
+        let feedbackText = document.getElementById("feedback-text");
 
         let gazeData = {
             scene1: {
@@ -299,11 +303,11 @@
             })
             .then(data => {
                 console.log("Data successfully sent to SheetDB:", data);
-                alert("Data submitted successfully!");
+                feedbackText.setAttribute("text", "value: Data submitted successfully!; color: green;");
             })
             .catch(error => {
                 console.error("Error sending data to SheetDB:", error);
-                alert("Failed to submit data. Please check the console for details.");
+                feedbackText.setAttribute("text", `value: Error: ${error.message}; color: red;`);
             });
         }
 
