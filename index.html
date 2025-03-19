@@ -89,9 +89,6 @@
             <a-plane id="finish-button" position="0 1 -1" width="1" height="0.5" color="green" visible="false"
                 text="value: Finish; align: center; color: white;">
             </a-plane>
-
-            <!-- Feedback Text -->
-            <a-entity id="feedback-text" position="0 1 -2" text="value: ; align: center; color: black; width: 3;"></a-entity>
         </a-entity>
 
     </a-scene>
@@ -119,7 +116,6 @@
 
         let gazeDisplay = document.getElementById("gaze-data-display");
         let scene2GazeDisplay = document.getElementById("scene2-gaze-data-display");
-        let feedbackText = document.getElementById("feedback-text");
 
         let gazeData = {
             scene1: {
@@ -159,7 +155,7 @@
 
                 setTimeout(() => {
                     scene1Button.setAttribute("visible", "true");
-                    scene1Button.classList.add("clickable");
+                    scene1Button.classList.add("clickable"); // Make button clickable
                 }, 24000);
             }
 
@@ -190,7 +186,7 @@
 
             setTimeout(() => {
                 scene2Button.setAttribute("visible", "true");
-                scene2Button.classList.add("clickable");
+                scene2Button.classList.add("clickable"); // Make button clickable
             }, 103000);
         }
 
@@ -231,7 +227,7 @@
             // Show Finish button after 100 seconds
             setTimeout(() => {
                 document.getElementById("finish-button").setAttribute("visible", "true");
-                document.getElementById("finish-button").classList.add("clickable");
+                document.getElementById("finish-button").classList.add("clickable"); // Make button clickable
             }, 100000);
         }
 
@@ -303,11 +299,9 @@
             })
             .then(data => {
                 console.log("Data successfully sent to SheetDB:", data);
-                feedbackText.setAttribute("text", "value: Data submitted successfully!; color: green;");
             })
             .catch(error => {
                 console.error("Error sending data to SheetDB:", error);
-                feedbackText.setAttribute("text", `value: Error: ${error.message}; color: red;`);
             });
         }
 
