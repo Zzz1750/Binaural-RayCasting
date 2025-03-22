@@ -3,24 +3,126 @@
 <head>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <style>
-        #name-form {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 10;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 10px;
+        body{
+            background-color: black;
         }
+     
+        #name_screen{
+            display: none;
+        }
+        #loading_screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+          }
+          
+        .loader {
+            width: 50px;
+            aspect-ratio: 1;
+            --_c:no-repeat radial-gradient(farthest-side,#25b09b 92%,#0000);
+            background: 
+              var(--_c) top,
+              var(--_c) left,
+              var(--_c) right,
+              var(--_c) bottom;
+            background-size: 12px 12px;
+            animation: l7 1s infinite;
+        }
+          #actual_form{
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            padding: 10%;
+            z-index: 5;
+            background-color: rgba(255, 255, 255, 0.01);
+          }
+          #background_name_form{
+            position: fixed;    
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0.25;
+          }
+          #name_label{
+            color: white;
+            font-size: 30px;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            font-weight: 600;
+            
+          }
+          #team_name{
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
+            position: absolute;
+            top: 80%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+        }
+       
+        #version_control{
+            margin: 0;
+            color: rgba(255, 255, 255, 0.5);
+            position: absolute;
+            bottom: 0%;
+            font-size: 8px;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        }
+        #username{
+            padding: 10px;
+            font-size: 20px;
+        }
+        #button_name{
+            padding: 5px 10px;
+            font-size: 15px;
+            border-radius: 5px;
+            border: none;
+            font-weight: 600;
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        #condition_head{
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 50px;
+            position: absolute;
+            top: 5%;
+            left: 15%;
+            transform: translate(-50%,-50%);
+        }
+          @keyframes l7 {to{transform: rotate(.5turn)}}
     </style>
 </head>
 <body>
 
     <!-- Name Input Form -->
     <div id="name-form">
-        <label for="username">Enter Your Name:</label>
-        <input type="text" id="username" required>
-        <button style="color: black;" onclick="startVR()">Submit</button>
+        <div id="loading_screen">
+            <div class="loader"></div>
+        </div>
+        <div id="name_screen">
+            <h1 id="condition_head">CONDITION A</h1>
+            <img src="./images/background.jpg" id="background_name_form" alt="">
+            <div id="actual_form">
+                <label for="username" id="name_label">NAME:</label><br><br>
+                <input type="text" id="username" required><br><br>
+                <button style="color: black;" id="button_name" onclick="startVR()">SUBMIT</button>
+            </div>
+            <h1 id="team_name"><span style="font-size:15px;margin-left:100%;">VR</span><br>CHETTINAD IMMERSIVE TOURISM</h1>
+            <p id="version_control">BETA 0.1.3</p>
+        </div>
+        
     </div>
 
     <a-scene id="vr-scene" vr-mode-ui="enabled: true">
@@ -47,11 +149,11 @@
 
         <!-- Scene 1 -->
         <a-entity id="scene-1" visible="false">
-            <a-sky src="./images/1.png"></a-sky>
+            <a-sky src="./images/1.png" rotation="0 -45 0"></a-sky>
 
             <!-- Gaze Planes (For Headset Tracking) -->
-            <a-plane id="main_entrance" class="gaze-plane" position="0 1.5 -4" width="2" height="2" color="blue" visible="false"></a-plane>
-            <a-plane id="roof_sculpture" class="gaze-plane" position="2 1.5 -4" width="2" height="2" color="green" visible="false"></a-plane>
+            <a-plane id="main_entrance" class="gaze-plane" position="0 1.5 -4" width="2" height="2" color="blue" visible="false" material="opacity: 0.5; transparent: true"></a-plane>
+            <a-plane id="roof_sculpture" class="gaze-plane" position="2 1.5 -4" width="2" height="2" color="green" visible="false" material="opacity: 0.5; transparent: true"></a-plane>
 
             <!-- Scene 1 Audio -->
             <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto"></audio>
@@ -92,6 +194,13 @@
         </a-entity>
 
     </a-scene>
+
+    <script>
+        setTimeout(()=>{
+            document.getElementById("loading_screen").style.display='none';
+            document.getElementById("name_screen").style.display='block';
+        },10)
+    </script>
 
     <script>
         // Variables
