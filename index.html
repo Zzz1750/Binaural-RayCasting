@@ -6,7 +6,9 @@
         body{
             background-color: black;
         }
-     
+        a-scene {
+            display: none;
+        }
         #name_screen{
             display: none;
         }
@@ -36,7 +38,7 @@
         }
           #actual_form{
             position: absolute;
-            top: 35%;
+            top: 40%;
             left: 50%;
             transform: translate(-50%,-50%);
             padding: 10%;
@@ -55,14 +57,14 @@
           }
           #name_label{
             color: white;
-            font-size: 30px;
+            font-size: 20px;
             font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
             font-weight: 600;
             
           }
           #team_name{
             font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.7);
             font-size: 20px;
             position: absolute;
             top: 80%;
@@ -81,12 +83,12 @@
             font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
         }
         #username{
-            padding: 10px;
-            font-size: 20px;
+            padding: 5px;
+            font-size: 15px;
         }
         #button_name{
             padding: 5px 10px;
-            font-size: 15px;
+            font-size: 12px;
             border-radius: 5px;
             border: none;
             font-weight: 600;
@@ -101,6 +103,16 @@
             left: 15%;
             transform: translate(-50%,-50%);
         }
+        #cube_design{
+            filter:invert(100%);
+            width: 5%;
+            position: absolute;
+            top: 75%;
+            left: 50%;
+            transform: translate(-50%,-50%) ;
+            opacity: 0.9;
+            
+        }
           @keyframes l7 {to{transform: rotate(.5turn)}}
     </style>
 </head>
@@ -113,11 +125,12 @@
         </div>
         <div id="name_screen">
             <h1 id="condition_head">CONDITION A</h1>
+            <img src="./images/cube.png" id="cube_design" alt="">
             <img src="./images/background.jpg" id="background_name_form" alt="">
             <div id="actual_form">
                 <label for="username" id="name_label">NAME:</label><br><br>
                 <input type="text" id="username" required><br><br>
-                <button style="color: black;" id="button_name" onclick="startVR()">SUBMIT</button>
+                <button style="color: black;" id="button_name" onclick="startVR()">ENTER VR</button>
             </div>
             <h1 id="team_name"><span style="font-size:15px;margin-left:100%;">VR</span><br>CHETTINAD IMMERSIVE TOURISM</h1>
             <p id="version_control">BETA 0.1.3</p>
@@ -249,25 +262,26 @@
                 alert("Please enter your name");
                 return;
             }
-
+        
             document.getElementById("name-form").style.display = "none";
-
+            document.querySelector("a-scene").style.display = "block"; // Show the a-scene element
+        
             function showIntroScene() {
                 introScene.setAttribute("visible", "true");
                 introAudio.play();
-
+        
                 if (sceneEl.hasLoaded) {
                     sceneEl.enterVR();
                 } else {
                     sceneEl.addEventListener("loaded", () => sceneEl.enterVR());
                 }
-
+        
                 setTimeout(() => {
                     scene1Button.setAttribute("visible", "true");
                     scene1Button.classList.add("clickable"); // Make button clickable
                 }, 24000);
             }
-
+        
             if (introAudio.readyState >= 3) {
                 showIntroScene();
             } else {
