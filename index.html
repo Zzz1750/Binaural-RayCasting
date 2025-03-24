@@ -473,5 +473,37 @@
         // Add event listener to the Finish button
         document.getElementById("finish-button").addEventListener("click", onFinishButtonClick);
     </script>
+    <script>
+      AFRAME.registerComponent('high-quality-texture', {
+        init: function () {
+          let texture = this.el.getObject3D('mesh').material.map;
+          if (texture) {
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+          }
+        }
+      });
+  
+      AFRAME.registerComponent('better-filter', {
+          init: function () {
+            let texture = this.el.getObject3D('mesh').material.map;
+            if (texture) {
+              texture.minFilter = THREE.LinearFilter;
+              texture.magFilter = THREE.LinearFilter;
+            }
+          }
+        });
+        
+        AFRAME.registerComponent('texture-tweak', {
+          init: function () {
+            let texture = this.el.getObject3D('mesh').material.map;
+            if (texture) {
+              texture.repeat.set(1, 1);  // Adjust tiling
+              texture.offset.set(0, 0);  // Adjust positioning
+            }
+          }
+        });
+        
+    </script>
 </body>
 </html>
