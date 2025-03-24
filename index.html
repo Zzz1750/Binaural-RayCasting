@@ -13,11 +13,13 @@
       <a-sky src="./images/1.png" radius="10" high-quality-texture better-filter texture-tweak></a-sky>
 
       <!-- Gaze Planes (For Headset Tracking) -->
-      <a-plane id="main_entrance" class="gaze-plane" position="-7 -0.5 0.3" width="2" rotation="0 90 0" height="3" color="blue"  material="opacity: 0.5; transparent: true"></a-plane>
-      <a-plane id="roof_sculpture" class="gaze-plane" position="-7 5.5 0.3" width="4" rotation="0 90 0" height="2" color="green" material="opacity: 0.5; transparent: true"></a-plane>
+      <a-plane id="main_entrance" class="gaze-plane" position="-7 -0.3 0.3" width="2" rotation="0 90 0" height="3" color="blue"  material="opacity: 0.5; transparent: true"></a-plane>
+      <a-plane id="roof_sculpture" class="gaze-plane" position="-7 5.4 0.3" width="4" rotation="0 90 0" height="2.5" color="green" material="opacity: 0.5; transparent: true"></a-plane>
 
       <!-- Scene 1 Audio -->
-      <!-- <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto"></audio> -->
+      <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto"></audio>
+      <a-sound src="#main_entrance_audio" autoplay="false" positional="true"></a-sound>
+
 
       <!-- Display Gaze Data -->
       <a-entity id="gaze-data-display" position="-1 2 -2" text="value: Loading...; align: center; color: white; width: 2;"></a-entity>
