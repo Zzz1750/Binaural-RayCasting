@@ -10,11 +10,11 @@
 <body>
   <a-scene id="vr-scene" vr-mode-ui="enabled: true">
     <a-entity id="scene-1" >
-      <a-sky src="./images/1.png" radius="10" high-quality-texture></a-sky>
+      <a-sky src="./images/1.png" radius="10" high-quality-texture better-filter texture-tweak></a-sky>
 
       <!-- Gaze Planes (For Headset Tracking) -->
-      <a-plane id="main_entrance" class="gaze-plane" position="-7 0.5 0.3" width="2" rotation="0 90 0" height="3" color="blue"  material="opacity: 0.5; transparent: true"></a-plane>
-      <a-plane id="roof_sculpture" class="gaze-plane" position="-7 6.5 0.3" width="5" rotation="0 90 0" height="2.5" color="green" material="opacity: 0.5; transparent: true"></a-plane>
+      <a-plane id="main_entrance" class="gaze-plane" position="-7 -0.5 0.3" width="2" rotation="0 90 0" height="3" color="blue"  material="opacity: 0.5; transparent: true"></a-plane>
+      <a-plane id="roof_sculpture" class="gaze-plane" position="-7 5.5 0.3" width="4" rotation="0 90 0" height="2" color="green" material="opacity: 0.5; transparent: true"></a-plane>
 
       <!-- Scene 1 Audio -->
       <!-- <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto"></audio> -->
@@ -23,7 +23,7 @@
       <a-entity id="gaze-data-display" position="-1 2 -2" text="value: Loading...; align: center; color: white; width: 2;"></a-entity>
 
       <!-- Scene 2 Button -->
-      <a-plane id="scene2-button" position="0 2 -2" width="1" height="0.5" color="blue" material="opacity: 0.8; transparent: true"
+      <a-plane id="scene2-button" position="0 1.5 -3" width="1" height="0.5" color="blue" material="opacity: 0.8; transparent: true"
           text="value: Next; align: center; color: white;width:2px">
       </a-plane>
   </a-entity>
@@ -38,7 +38,27 @@
         }
       }
     });
-    
+
+    AFRAME.registerComponent('better-filter', {
+        init: function () {
+          let texture = this.el.getObject3D('mesh').material.map;
+          if (texture) {
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+          }
+        }
+      });
+      
+      AFRAME.registerComponent('texture-tweak', {
+        init: function () {
+          let texture = this.el.getObject3D('mesh').material.map;
+          if (texture) {
+            texture.repeat.set(1, 1);  // Adjust tiling
+            texture.offset.set(0, 0);  // Adjust positioning
+          }
+        }
+      });
+      
   </script>
 </body>
 </html>
