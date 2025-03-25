@@ -45,6 +45,14 @@
             font-size: 16px;
         }
         
+        #loading_message {
+            margin-top: 10px;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            color: #333;
+            font-size: 14px;
+            font-style: italic;
+        }
+        
           #actual_form{
             position: absolute;
             top: 40%;
@@ -132,6 +140,7 @@
         <div id="loading_screen">
             <div class="loader"></div>
             <div id="loading_progress">Loading assets... 0%</div>
+            <div id="loading_message">Preparing immersive experience...</div>
         </div>
         <div id="name_screen">
             <h1 id="condition_head">CONDITION A</h1>
@@ -233,20 +242,64 @@
         ];
 
         let loadedCount = 0;
+        let minLoadingTime = 5000; // Minimum 5 seconds loading time
+        let loadingStartTime = performance.now();
         
         function updateProgress() {
             loadedCount++;
             const progress = Math.round((loadedCount / assets.length) * 100);
             document.getElementById('loading_progress').textContent = `Loading assets... ${progress}%`;
             
-            if (loadedCount === assets.length) {
-                // All assets loaded
-                document.getElementById("loading_screen").style.display = 'none';
-                document.getElementById("name_screen").style.display = 'block';
+            // Update loading message based on progress
+            const messages = [
+                "Preparing immersive experience...",
+                "Loading 3D environments...",
+                "Optimizing audio quality...",
+                "Almost ready...",
+                "Finalizing setup..."
+            ];
+            const messageIndex = Math.min(Math.floor(progress / 20), messages.length - 1);
+            document.getElementById('loading_message').textContent = messages[messageIndex];
+            
+            // Check if all assets are loaded AND minimum time has passed
+            const currentTime = performance.now();
+            const timeElapsed = currentTime - loadingStartTime;
+            
+            if (loadedCount === assets.length && timeElapsed >= minLoadingTime) {
+                showNameScreen();
+            } else if (loadedCount === assets.length) {
+                // All assets loaded but minimum time not reached yet
+                setTimeout(showNameScreen, minLoadingTime - timeElapsed);
             }
         }
 
+        function showNameScreen() {
+            document.getElementById("loading_screen").style.display = 'none';
+            document.getElementById("name_screen").style.display = 'block';
+            
+            // Ensure all audio elements are properly initialized
+            initializeAudioElements();
+        }
+
+        function initializeAudioElements() {
+            // Get all audio elements and ensure they're properly loaded
+            const audioElements = [
+                document.getElementById('intro-audio'),
+                document.getElementById('main_entrance_audio'),
+                document.getElementById('roof_sculpture_audio'),
+                document.getElementById('mosaic_tiles_audio'),
+                document.getElementById('wood_carvings_audio')
+            ];
+            
+            audioElements.forEach(audio => {
+                audio.load(); // Force reload to ensure they're ready
+                audio.setAttribute('preload', 'auto');
+            });
+        }
+
         function preloadAssets() {
+            loadingStartTime = performance.now();
+            
             assets.forEach(asset => {
                 if (asset.type === 'image') {
                     const img = new Image();
@@ -262,14 +315,15 @@
                     }
                 } else if (asset.type === 'audio') {
                     const audio = new Audio();
-                    audio.oncanplaythrough = updateProgress;
+                    audio.oncanplaythrough = function() {
+                        // Set the src for the actual audio element in the scene
+                        document.getElementById(asset.id).src = asset.url;
+                        document.getElementById(asset.id).load();
+                        updateProgress();
+                    };
                     audio.onerror = updateProgress;
                     audio.src = asset.url;
                     audio.load();
-                    
-                    // Store the preloaded audio element
-                    document.getElementById(asset.id).src = asset.url;
-                    document.getElementById(asset.id).load();
                 }
             });
         }
@@ -331,7 +385,16 @@
         
             function showIntroScene() {
                 introScene.setAttribute("visible", "true");
-                introAudio.play();
+                
+                // Ensure audio is properly loaded and play it
+                introAudio.load();
+                introAudio.play().catch(e => {
+                    console.error("Audio play failed:", e);
+                    // Try again with user interaction
+                    document.addEventListener('click', function() {
+                        introAudio.play().catch(e => console.error("Retry failed:", e));
+                    }, { once: true });
+                });
         
                 if (sceneEl.hasLoaded) {
                     sceneEl.enterVR();
@@ -348,7 +411,7 @@
             if (introAudio.readyState >= 3) {
                 showIntroScene();
             } else {
-                introAudio.addEventListener("canplaythrough", showIntroScene);
+                introAudio.addEventListener("canplaythrough", showIntroScene, { once: true });
                 introAudio.load();
             }
         }
@@ -362,11 +425,20 @@
             mainEntrancePlane.setAttribute("visible", "true");
             roofSculpturePlane.setAttribute("visible", "true");
 
-            mainEntranceAudio.play();
+            // Ensure audio is properly loaded and play it
+            mainEntranceAudio.load();
+            mainEntranceAudio.play().catch(e => {
+                console.error("Main entrance audio play failed:", e);
+                mainEntranceAudio.play(); // Try again
+            });
             audioStartTimes.main_entrance = performance.now();
 
             setTimeout(() => {
-                roofSculptureAudio.play();
+                roofSculptureAudio.load();
+                roofSculptureAudio.play().catch(e => {
+                    console.error("Roof sculpture audio play failed:", e);
+                    roofSculptureAudio.play(); // Try again
+                });
                 audioStartTimes.roof_sculpture = performance.now();
             }, 66000);
 
@@ -400,13 +472,21 @@
 
             // Play first audio after 3 seconds
             setTimeout(() => {
-                mosaicTilesAudio.play();
+                mosaicTilesAudio.load();
+                mosaicTilesAudio.play().catch(e => {
+                    console.error("Mosaic tiles audio play failed:", e);
+                    mosaicTilesAudio.play(); // Try again
+                });
                 audioStartTimes.mosaic_tiles = performance.now();
             }, 3000);
 
             // Play second audio after 56 seconds
             setTimeout(() => {
-                woodCarvingsAudio.play();
+                woodCarvingsAudio.load();
+                woodCarvingsAudio.play().catch(e => {
+                    console.error("Wood carvings audio play failed:", e);
+                    woodCarvingsAudio.play(); // Try again
+                });
                 audioStartTimes.wood_carvings = performance.now();
             }, 56000);
 
