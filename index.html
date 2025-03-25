@@ -154,7 +154,7 @@
 
         <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
-            <a-sky src="./images/intro.jpg"></a-sky>
+            <a-sky src="./images/intro.jpg" radius="10" high-quality-texture better-filter texture-tweak></a-sky>
             <a-plane id="scene1-button" position="0 1.5 -1" width="1" height="0.5" color="white" visible="false"
                 text="value: Scene 1; align: center; width: 5; color: black;">
             </a-plane>
@@ -183,7 +183,7 @@
 
         <!-- Scene 2 -->
         <a-entity id="scene-2" visible="false">
-            <a-sky src="./images/2.png"></a-sky>
+            <a-sky src="./images/2.png" radius="10" high-quality-texture better-filter texture-tweak></a-sky>
 
             <!-- Gaze Planes (For Headset Tracking) -->
             <a-plane id="mosaic_tiles" class="gaze-plane" position="1.2 0 0" rotation="-90 0 0" width="2" height="5" material="opacity: 0.4; transparent: true" color="purple" visible="false"></a-plane>
@@ -467,8 +467,7 @@
 
             setTimeout(()=>{
                 window.location.href = "https://zzz1750.github.io/Audio-Impact-Analysis-in-VR/";
-
-            },2000);
+            },10);
         }
 
         // Add event listener to the Finish button
