@@ -470,11 +470,6 @@
             sendDataToSheetDB(data);
 
             setTimeout(()=>{
-                if (document.exitFullscreen) {
-                    document.exitFullscreen(); // Standard exit
-                  } else if (AFRAME.utils.device.exitVR) {
-                    AFRAME.utils.device.exitVR(); // A-Frame exit VR
-                  }
                 window.location.href = "https://zzz1750.github.io/Audio-Impact-Analysis-in-VR/";
             },2000);
         }
