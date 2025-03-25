@@ -19,6 +19,7 @@
             width: 100vw;
             height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             background: white;
@@ -36,6 +37,14 @@
             background-size: 12px 12px;
             animation: l7 1s infinite;
         }
+        
+        #loading_progress {
+            margin-top: 20px;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            color: #25b09b;
+            font-size: 16px;
+        }
+        
           #actual_form{
             position: absolute;
             top: 40%;
@@ -122,6 +131,7 @@
     <div id="name-form">
         <div id="loading_screen">
             <div class="loader"></div>
+            <div id="loading_progress">Loading assets... 0%</div>
         </div>
         <div id="name_screen">
             <h1 id="condition_head">CONDITION A</h1>
@@ -205,10 +215,67 @@
     </a-scene>
 
     <script>
-        setTimeout(()=>{
-            document.getElementById("loading_screen").style.display='none';
-            document.getElementById("name_screen").style.display='block';
-        },10000)
+        // Asset list to preload
+        const assets = [
+            // Images
+            { type: 'image', id: 'background_name_form', url: './images/background.jpg' },
+            { type: 'image', id: 'cube_design', url: './images/cube.png' },
+            { type: 'image', id: 'intro-scene-sky', url: './images/intro.jpg' },
+            { type: 'image', id: 'scene1-sky', url: './images/1.png' },
+            { type: 'image', id: 'scene2-sky', url: './images/2.png' },
+            
+            // Audio files
+            { type: 'audio', id: 'intro-audio', url: './audio/intro.wav' },
+            { type: 'audio', id: 'main_entrance_audio', url: './audio/main_entrance.wav' },
+            { type: 'audio', id: 'roof_sculpture_audio', url: './audio/roof_sculpture.wav' },
+            { type: 'audio', id: 'mosaic_tiles_audio', url: './audio/mosaic_tiles.wav' },
+            { type: 'audio', id: 'wood_carvings_audio', url: './audio/wood_carvings.wav' }
+        ];
+
+        let loadedCount = 0;
+        
+        function updateProgress() {
+            loadedCount++;
+            const progress = Math.round((loadedCount / assets.length) * 100);
+            document.getElementById('loading_progress').textContent = `Loading assets... ${progress}%`;
+            
+            if (loadedCount === assets.length) {
+                // All assets loaded
+                document.getElementById("loading_screen").style.display = 'none';
+                document.getElementById("name_screen").style.display = 'block';
+            }
+        }
+
+        function preloadAssets() {
+            assets.forEach(asset => {
+                if (asset.type === 'image') {
+                    const img = new Image();
+                    img.onload = updateProgress;
+                    img.onerror = updateProgress;
+                    img.src = asset.url;
+                    
+                    // If this is one of the images used in the name screen, set it
+                    if (asset.id === 'background_name_form') {
+                        document.getElementById('background_name_form').src = asset.url;
+                    } else if (asset.id === 'cube_design') {
+                        document.getElementById('cube_design').src = asset.url;
+                    }
+                } else if (asset.type === 'audio') {
+                    const audio = new Audio();
+                    audio.oncanplaythrough = updateProgress;
+                    audio.onerror = updateProgress;
+                    audio.src = asset.url;
+                    audio.load();
+                    
+                    // Store the preloaded audio element
+                    document.getElementById(asset.id).src = asset.url;
+                    document.getElementById(asset.id).load();
+                }
+            });
+        }
+
+        // Start preloading when the page loads
+        window.addEventListener('DOMContentLoaded', preloadAssets);
     </script>
 
     <script>
