@@ -154,9 +154,9 @@
 
         <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
-            <a-sky src="./images/intro.jpg" radius="10" high-quality-texture better-filter texture-tweak></a-sky>
-            <a-plane id="scene1-button" position="0 1.5 -1" width="1" height="0.5" color="white" visible="false"
-                text="value: Scene 1; align: center; width: 5; color: black;">
+            <a-sky src="./images/intro.jpg"></a-sky>
+            <a-plane id="scene1-button" position="0 1.5 -3" width="1" height="0.5" color="blue" visible="false" material="opacity: 0.8; transparent: true"
+            text="value: Next; align: center; color: white; width:2.5px;">
             </a-plane>
         </a-entity>
 
@@ -176,18 +176,22 @@
             <a-entity id="gaze-data-display" position="-1 2 -2" text="value: Loading...; align: center; color: white; width: 2;"></a-entity>
 
             <!-- Scene 2 Button -->
-            <a-plane id="scene2-button" position="0 1.5 -3" width="1" height="0.5" color="red" visible="false"
-                text="value: To Scene 2; align: center; color: white; width:2px">
+            <a-plane id="scene2-button" position="0 1.5 -3" width="1" height="0.5" color="blue" visible="false" material="opacity: 0.8; transparent: true"
+                text="value: Next; align: center; color: white; width:2.5px;">
             </a-plane>
         </a-entity>
 
         <!-- Scene 2 -->
         <a-entity id="scene-2" visible="false">
-            <a-sky src="./images/2.png" radius="10" high-quality-texture better-filter texture-tweak></a-sky>
+            <a-sky src="./images/2.png"></a-sky>
 
             <!-- Gaze Planes (For Headset Tracking) -->
-            <a-plane id="mosaic_tiles" class="gaze-plane" position="1.2 0 0" rotation="-90 0 0" width="2" height="5" material="opacity: 0.4; transparent: true" color="purple" visible="false"></a-plane>
-            <a-plane id="wood_carvings" class="gaze-plane" position="8 5 0.5" rotation="40 -90 0" width="5" height="3" material="opacity: 0.4; transparent: true" color="brown" visible="false"></a-plane>
+            <a-plane id="mosaic_tiles" class="gaze-plane" position="1.2 0 0" rotation="-90 0 0" width="2" height="5" material="opacity: 0.4; transparent: true" color="purple" visible="false"
+                text="value: Mosaic Tiles; align: center; color: white;">
+            </a-plane>
+            <a-plane id="wood_carvings" class="gaze-plane" position="8 5 0.5" rotation="40 -90 0" width="5" height="3" material="opacity: 0.4; transparent: true" color="brown" visible="false"
+                text="value: Wood Carvings; align: center; color: white;">
+            </a-plane>
 
             <!-- Scene 2 Audio -->
             <audio id="mosaic_tiles_audio" src="./audio/mosaic_tiles.wav" preload="auto"></audio>
@@ -198,7 +202,7 @@
 
             <!-- Finish Button -->
             <a-plane id="finish-button" position="0 1.5 -2" width="1" height="0.5" color="green" material="opacity: 0.8; transparent: true" visible="false"
-                text="value: Finish; align: center; color: white; width: 2.5px;">
+                text="value: Finish; align: center; color: white;width:2.5px;">
             </a-plane>
         </a-entity>
 
@@ -250,6 +254,10 @@
         let currentGazeStart = null;
         let currentPlane = null;
         let currentScene = null;
+
+        window.onload = function() {
+            introAudio.load(); // Force early loading
+        };
 
         // Start VR
         function startVR() {
@@ -467,7 +475,7 @@
 
             setTimeout(()=>{
                 window.location.href = "https://zzz1750.github.io/Audio-Impact-Analysis-in-VR/";
-            },10);
+            },500);
         }
 
         // Add event listener to the Finish button

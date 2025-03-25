@@ -154,9 +154,9 @@
 
         <!-- Intro Scene -->
         <a-entity id="intro-scene" visible="false">
-            <a-sky src="./images/intro.jpg"></a-sky>
+            <a-sky src="./images/intro.jpg" radius="10" high-quality-texture better-filter texture-tweak></a-sky>
             <a-plane id="scene1-button" position="0 1.5 -3" width="1" height="0.5" color="blue" visible="false" material="opacity: 0.8; transparent: true"
-            text="value: Next; align: center; color: white; width:2.5px;">
+            text="value: Next; align: center; color: white; width:2.5px;">>
             </a-plane>
         </a-entity>
 
@@ -177,21 +177,17 @@
 
             <!-- Scene 2 Button -->
             <a-plane id="scene2-button" position="0 1.5 -3" width="1" height="0.5" color="blue" visible="false" material="opacity: 0.8; transparent: true"
-                text="value: Next; align: center; color: white; width:2.5px;">
+            text="value: Next; align: center; color: white; width:2.5px;">>
             </a-plane>
         </a-entity>
 
         <!-- Scene 2 -->
         <a-entity id="scene-2" visible="false">
-            <a-sky src="./images/2.png"></a-sky>
+            <a-sky src="./images/2.png" radius="10" high-quality-texture better-filter texture-tweak></a-sky>
 
             <!-- Gaze Planes (For Headset Tracking) -->
-            <a-plane id="mosaic_tiles" class="gaze-plane" position="1.2 0 0" rotation="-90 0 0" width="2" height="5" material="opacity: 0.4; transparent: true" color="purple" visible="false"
-                text="value: Mosaic Tiles; align: center; color: white;">
-            </a-plane>
-            <a-plane id="wood_carvings" class="gaze-plane" position="8 5 0.5" rotation="40 -90 0" width="5" height="3" material="opacity: 0.4; transparent: true" color="brown" visible="false"
-                text="value: Wood Carvings; align: center; color: white;">
-            </a-plane>
+            <a-plane id="mosaic_tiles" class="gaze-plane" position="1.2 0 0" rotation="-90 0 0" width="2" height="5" material="opacity: 0.4; transparent: true" color="purple" visible="false"></a-plane>
+            <a-plane id="wood_carvings" class="gaze-plane" position="8 5 0.5" rotation="40 -90 0" width="5" height="3" material="opacity: 0.4; transparent: true" color="brown" visible="false"></a-plane>
 
             <!-- Scene 2 Audio -->
             <audio id="mosaic_tiles_audio" src="./audio/mosaic_tiles.wav" preload="auto"></audio>
@@ -202,7 +198,7 @@
 
             <!-- Finish Button -->
             <a-plane id="finish-button" position="0 1.5 -2" width="1" height="0.5" color="green" material="opacity: 0.8; transparent: true" visible="false"
-                text="value: Finish; align: center; color: white;width:2.5px;">
+                text="value: Finish; align: center; color: white; width: 2.5px;">
             </a-plane>
         </a-entity>
 
@@ -254,10 +250,6 @@
         let currentGazeStart = null;
         let currentPlane = null;
         let currentScene = null;
-
-        window.onload = function() {
-            introAudio.load(); // Force early loading
-        };
 
         // Start VR
         function startVR() {
