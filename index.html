@@ -114,10 +114,10 @@
         #condition_head{
             font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
             color: rgba(255, 255, 255, 0.9);
-            font-size: 50px;
+            font-size: 20px;
             position: absolute;
             top: 5%;
-            left: 15%;
+            left: 10%;
             transform: translate(-50%,-50%);
         }
         #cube_design{
@@ -158,6 +158,9 @@
     </div>
 
     <a-scene id="vr-scene" vr-mode-ui="enabled: true">
+
+        <!-- Background Audio -->
+        <audio id="background-audio" src="./audio/background_audio.wav" loop></audio>
         
         <!-- Right Hand Controller (For Clicking Buttons Only) -->
         <a-entity id="right-hand" laser-controls="hand: right" 
@@ -184,15 +187,19 @@
             <a-sky src="./images/1.png" radius="10" high-quality-texture better-filter texture-tweak></a-sky>
 
             <!-- Gaze Planes (For Headset Tracking) -->
-            <a-plane id="main_entrance" class="gaze-plane" position="-7 -0.3 0.3" width="2" rotation="0 90 0" height="3" color="blue" visible="false" material="opacity: 0.5; transparent: true"></a-plane>
-            <a-plane id="roof_sculpture" class="gaze-plane" position="-7 5.4 0.3" width="4" rotation="0 90 0" height="2.5" color="green" visible="false" material="opacity: 0.5; transparent: true"></a-plane>
+            <a-plane id="main_entrance" class="gaze-plane" position="-7 -0.3 0.3" width="2" rotation="0 90 0" height="3" color="blue" visible="false" material="opacity: 0; transparent: true"></a-plane>
+            <a-plane id="roof_sculpture" class="gaze-plane" position="-7 5.4 0.3" width="4" rotation="0 90 0" height="2.5" color="green" visible="false" material="opacity: 0; transparent: true"></a-plane>
 
-            <!-- Scene 1 Audio -->
-            <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto"></audio>
-            <audio id="roof_sculpture_audio" src="./audio/roof_sculpture.wav" preload="auto"></audio>
+            <!-- Scene 1 Audio - Positioned on the left side -->
+            <a-entity id="main_entrance_audio_entity" position="-4 0 0">
+                <audio id="main_entrance_audio" src="./audio/main_entrance.wav" preload="auto" positional="true"></audio>
+            </a-entity>
+            <a-entity id="roof_sculpture_audio_entity" position="-4 0 0">
+                <audio id="roof_sculpture_audio" src="./audio/roof_sculpture.wav" preload="auto" positional="true"></audio>
+            </a-entity>
 
             <!-- Display Gaze Data -->
-            <a-entity id="gaze-data-display" position="-1 2 -2" text="value: Loading...; align: center; color: white; width: 2;"></a-entity>
+            <a-entity id="gaze-data-display" position="-1 2 -2" text="value: Loading...; align: center; color: white; width: 2; opacity: 0"></a-entity>
 
             <!-- Scene 2 Button -->
             <a-plane id="scene2-button" position="0 1.5 -3" width="1" height="0.5" color="blue" visible="false" material="opacity: 0.8; transparent: true"
@@ -205,15 +212,19 @@
             <a-sky src="./images/2.png" radius="10" high-quality-texture better-filter texture-tweak></a-sky>
 
             <!-- Gaze Planes (For Headset Tracking) -->
-            <a-plane id="mosaic_tiles" class="gaze-plane" position="1.2 0 0" rotation="-90 0 0" width="2" height="5" material="opacity: 0.4; transparent: true" color="purple" visible="false"></a-plane>
-            <a-plane id="wood_carvings" class="gaze-plane" position="8 5 0.5" rotation="40 -90 0" width="5" height="3" material="opacity: 0.4; transparent: true" color="brown" visible="false"></a-plane>
+            <a-plane id="mosaic_tiles" class="gaze-plane" position="1.2 0 0" rotation="-90 0 0" width="2" height="5" material="opacity: 0; transparent: true" color="purple" visible="false"></a-plane>
+            <a-plane id="wood_carvings" class="gaze-plane" position="8 5 0.5" rotation="40 -90 0" width="5" height="3" material="opacity: 0; transparent: true" color="brown" visible="false"></a-plane>
 
-            <!-- Scene 2 Audio -->
-            <audio id="mosaic_tiles_audio" src="./audio/mosaic_tiles.wav" preload="auto"></audio>
-            <audio id="wood_carvings_audio" src="./audio/wood_carvings.wav" preload="auto"></audio>
+            <!-- Scene 2 Audio - Positioned on the right side -->
+            <a-entity id="mosaic_tiles_audio_entity" position="4 0 0">
+                <audio id="mosaic_tiles_audio" src="./audio/mosaic_tiles.wav" preload="auto" positional="true"></audio>
+            </a-entity>
+            <a-entity id="wood_carvings_audio_entity" position="4 0 0">
+                <audio id="wood_carvings_audio" src="./audio/wood_carvings.wav" preload="auto" positional="true"></audio>
+            </a-entity>
 
             <!-- Display Gaze Data -->
-            <a-entity id="scene2-gaze-data-display" position="-1 2 -2" text="value: Loading...; align: center; color: white; width: 2;"></a-entity>
+            <a-entity id="scene2-gaze-data-display" position="-1 2 -2" text="value: Loading...; align: center; color: white; width: 2; opacity: 0;"></a-entity>
 
             <!-- Finish Button -->
             <a-plane id="finish-button" position="0 1.5 -2" width="1" height="0.5" color="green" material="opacity: 0.8; transparent: true" visible="false"
@@ -238,7 +249,8 @@
             { type: 'audio', id: 'main_entrance_audio', url: './audio/main_entrance.wav' },
             { type: 'audio', id: 'roof_sculpture_audio', url: './audio/roof_sculpture.wav' },
             { type: 'audio', id: 'mosaic_tiles_audio', url: './audio/mosaic_tiles.wav' },
-            { type: 'audio', id: 'wood_carvings_audio', url: './audio/wood_carvings.wav' }
+            { type: 'audio', id: 'wood_carvings_audio', url: './audio/wood_carvings.wav' },
+            { type: 'audio', id: 'background-audio', url: './audio/background_audio.wav' }
         ];
 
         let loadedCount = 0;
@@ -381,16 +393,21 @@
             }
         
             document.getElementById("name-form").style.display = "none";
-            document.querySelector("a-scene").style.display = "block"; // Show the a-scene element
+            document.querySelector("a-scene").style.display = "block";
+            
+            // Start background audio (new addition)
+            const bgAudio = document.getElementById("background-audio");
+            bgAudio.volume = 0.5; // Set appropriate volume
+            bgAudio.play().catch(e => {
+                console.log("Background audio play failed, will retry after interaction:", e);
+                document.addEventListener('click', () => bgAudio.play(), { once: true });
+            });
         
             function showIntroScene() {
                 introScene.setAttribute("visible", "true");
                 
-                // Ensure audio is properly loaded and play it
-                introAudio.load();
                 introAudio.play().catch(e => {
                     console.error("Audio play failed:", e);
-                    // Try again with user interaction
                     document.addEventListener('click', function() {
                         introAudio.play().catch(e => console.error("Retry failed:", e));
                     }, { once: true });
@@ -404,7 +421,7 @@
         
                 setTimeout(() => {
                     scene1Button.setAttribute("visible", "true");
-                    scene1Button.classList.add("clickable"); // Make button clickable
+                    scene1Button.classList.add("clickable");
                 }, 24000);
             }
         
@@ -424,6 +441,10 @@
 
             mainEntrancePlane.setAttribute("visible", "true");
             roofSculpturePlane.setAttribute("visible", "true");
+
+            // Position Scene 1 audio sources on the left
+            document.getElementById("main_entrance_audio_entity").setAttribute("position", "-4 0 0");
+            document.getElementById("roof_sculpture_audio_entity").setAttribute("position", "-4 0 0");
 
             // Ensure audio is properly loaded and play it
             mainEntranceAudio.load();
@@ -469,6 +490,10 @@
             // Make Scene 2 planes visible
             mosaicTilesPlane.setAttribute("visible", "true");
             woodCarvingsPlane.setAttribute("visible", "true");
+
+            // Position Scene 2 audio sources on the right
+            document.getElementById("mosaic_tiles_audio_entity").setAttribute("position", "4 0 0");
+            document.getElementById("wood_carvings_audio_entity").setAttribute("position", "4 0 0");
 
             // Play first audio after 3 seconds
             setTimeout(() => {
@@ -546,7 +571,7 @@
 
         // Send Data to SheetDB
         function sendDataToSheetDB(data) {
-            const apiUrl = "https://sheetdb.io/api/v1/hhp8it5b5191i"; // Replace with your SheetDB API URL
+            const apiUrl = "https://sheetdb.io/api/v1/6d9be7qjfca6s"; // Replace with your SheetDB API URL
 
             console.log("Sending data to SheetDB:", data); // Debugging: Log the data being sent
 
@@ -573,6 +598,10 @@
 
         // Finish Button Click Handler
         function onFinishButtonClick() {
+            // Hide the finish button immediately
+            document.getElementById("finish-button").setAttribute("visible", "false");
+            document.getElementById("finish-button").classList.remove("clickable");
+            
             const name = document.getElementById("username").value;
 
             // Prepare the data for SheetDB
@@ -607,14 +636,15 @@
                 },
             ];
 
-            console.log("Prepared data for SheetDB:", data); // Debugging: Log the prepared data
+            console.log("Prepared data for SheetDB:", data);
 
             // Send the data to SheetDB
             sendDataToSheetDB(data);
 
-            setTimeout(()=>{
+            // Redirect after a short delay (2 seconds)
+            setTimeout(() => {
                 window.location.href = "https://zzz1750.github.io/Audio-Impact-Analysis-in-VR/";
-            },500);
+            }, 2000);
         }
 
         // Add event listener to the Finish button
