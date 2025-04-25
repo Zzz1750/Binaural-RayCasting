@@ -183,9 +183,9 @@
 
             <!-- Gaze Planes -->
             <a-plane id="main_entrance" class="gaze-plane" position="-7 -0.3 0.3" width="2" rotation="0 90 0" 
-                height="3" color="blue" visible="false" material="opacity: 0; transparent: true"></a-plane>
+                height="3" color="blue" visible="false" material="opacity: 0.6; transparent: true"></a-plane>
             <a-plane id="roof_sculpture" class="gaze-plane" position="-7 5.4 0.3" width="4" rotation="0 90 0" 
-                height="2.5" color="green" visible="false" material="opacity: 0; transparent: true"></a-plane>
+                height="2.5" color="green" visible="false" material="opacity: 0.6; transparent: true"></a-plane>
 
             <!-- Scene 1 Audio - Left Positioned with proper spatial settings -->
             <a-entity id="main_entrance_audio_entity" position="-1.5 0 -1" 
@@ -199,7 +199,7 @@
 
             <!-- Display Gaze Data -->
             <a-entity id="gaze-data-display" position="-1 2 -2" 
-                text="value: Loading...; align: center; color: white; width: 2; opacity: 0"></a-entity>
+                text="value: Loading...; align: center; color: white; width: 2; opacity: 1"></a-entity>
 
             <!-- Scene 2 Button -->
             <a-plane id="scene2-button" position="0 1.5 -3" width="1" height="0.5" color="blue" visible="false" 
@@ -214,11 +214,10 @@
 
             <!-- Gaze Planes -->
             <a-plane id="mosaic_tiles" class="gaze-plane" position="1.2 0 0" rotation="-90 0 0" width="2" 
-                height="5" material="opacity: 0; transparent: true" color="purple" visible="false"></a-plane>
+                height="5" material="opacity: 0.6; transparent: true" color="purple" visible="false"></a-plane>
             <a-plane id="wood_carvings" class="gaze-plane" position="8 5 0.5" rotation="40 -90 0" width="5" 
-                height="3" material="opacity: 0; transparent: true" color="brown" visible="false"></a-plane>
+                height="3" material="opacity: 0.6; transparent: true" color="brown" visible="false"></a-plane>
 
-            <!-- Scene 2 Audio - Right Positioned with proper spatial settings -->
             <a-entity id="mosaic_tiles_audio_entity" position="1.5 0 -1" 
                 sound="src: #mosaic_tiles_audio; positional: true; distanceModel: linear; refDistance: 1; rolloffFactor: 2; volume: 0.8; coneInnerAngle: 120; coneOuterAngle: 240; coneOuterGain: 0.3">
                 <audio id="mosaic_tiles_audio" src="./audio/mosaic_tiles.wav" preload="auto"></audio>
@@ -228,29 +227,24 @@
                 <audio id="wood_carvings_audio" src="./audio/wood_carvings.wav" preload="auto"></audio>
             </a-entity>
 
-            <!-- Display Gaze Data -->
-            <a-entity id="scene2-gaze-data-display" position="-1 2 -2" 
-                text="value: Loading...; align: center; color: white; width: 2; opacity: 0;"></a-entity>
+            <a-entity id="scene2-gaze-data-display" position="2 2 -2" 
+                text="value: Loading...; align: center; color: white; width: 2; opacity: 1;"></a-entity>
 
-            <!-- Finish Button -->
             <a-plane id="finish-button" position="0 1.5 -2" width="1" height="0.5" color="green" 
                 material="opacity: 0.8; transparent: true" visible="false"
                 text="value: Finish; align: center; color: white; width: 2.5px;">
             </a-plane>
         </a-entity>
     </a-scene>
-
+mat
     <script>
-        // Asset list to preload
         const assets = [
-            // Images
             { type: 'image', id: 'background_name_form', url: './images/background.jpg' },
             { type: 'image', id: 'cube_design', url: './images/cube.png' },
             { type: 'image', id: 'intro-scene-sky', url: './images/intro.jpg' },
             { type: 'image', id: 'scene1-sky', url: './images/1.png' },
             { type: 'image', id: 'scene2-sky', url: './images/2.png' },
             
-            // Audio files
             { type: 'audio', id: 'intro-audio', url: './audio/intro.wav' },
             { type: 'audio', id: 'main_entrance_audio', url: './audio/main_entrance.wav' },
             { type: 'audio', id: 'roof_sculpture_audio', url: './audio/roof_sculpture.wav' },
@@ -260,7 +254,7 @@
         ];
 
         let loadedCount = 0;
-        let minLoadingTime = 5000; // Minimum 5 seconds loading time
+        let minLoadingTime = 5000;
         let loadingStartTime = performance.now();
         
         function updateProgress() {
@@ -268,7 +262,6 @@
             const progress = Math.round((loadedCount / assets.length) * 100);
             document.getElementById('loading_progress').textContent = `Loading assets... ${progress}%`;
             
-            // Update loading message based on progress
             const messages = [
                 "Preparing immersive experience...",
                 "Loading 3D environments...",
@@ -279,14 +272,12 @@
             const messageIndex = Math.min(Math.floor(progress / 20), messages.length - 1);
             document.getElementById('loading_message').textContent = messages[messageIndex];
             
-            // Check if all assets are loaded AND minimum time has passed
             const currentTime = performance.now();
             const timeElapsed = currentTime - loadingStartTime;
             
             if (loadedCount === assets.length && timeElapsed >= minLoadingTime) {
                 showNameScreen();
             } else if (loadedCount === assets.length) {
-                // All assets loaded but minimum time not reached yet
                 setTimeout(showNameScreen, minLoadingTime - timeElapsed);
             }
         }
@@ -295,12 +286,10 @@
             document.getElementById("loading_screen").style.display = 'none';
             document.getElementById("name_screen").style.display = 'block';
             
-            // Ensure all audio elements are properly initialized
             initializeAudioElements();
         }
 
         function initializeAudioElements() {
-            // Get all audio elements and ensure they're properly loaded
             const audioElements = [
                 document.getElementById('intro-audio'),
                 document.getElementById('main_entrance_audio'),
@@ -311,7 +300,7 @@
             ];
             
             audioElements.forEach(audio => {
-                audio.load(); // Force reload to ensure they're ready
+                audio.load();
                 audio.setAttribute('preload', 'auto');
             });
         }
@@ -326,7 +315,6 @@
                     img.onerror = updateProgress;
                     img.src = asset.url;
                     
-                    // If this is one of the images used in the name screen, set it
                     if (asset.id === 'background_name_form') {
                         document.getElementById('background_name_form').src = asset.url;
                     } else if (asset.id === 'cube_design') {
@@ -335,7 +323,6 @@
                 } else if (asset.type === 'audio') {
                     const audio = new Audio();
                     audio.oncanplaythrough = function() {
-                        // Set the src for the actual audio element in the scene
                         document.getElementById(asset.id).src = asset.url;
                         document.getElementById(asset.id).load();
                         updateProgress();
@@ -347,12 +334,10 @@
             });
         }
 
-        // Start preloading when the page loads
         window.addEventListener('DOMContentLoaded', preloadAssets);
     </script>
 
     <script>
-        // Variables
         let introAudio = document.getElementById("intro-audio");
         let sceneEl = document.getElementById("vr-scene");
         let introScene = document.getElementById("intro-scene");
@@ -390,7 +375,6 @@
         let currentPlane = null;
         let currentScene = null;
 
-        // Start VR
         function startVR() {
             let name = document.getElementById("username").value;
             if (name.trim() === "") {
@@ -401,7 +385,6 @@
             document.getElementById("name-form").style.display = "none";
             document.querySelector("a-scene").style.display = "block";
             
-            // Start background audio
             const bgAudio = document.getElementById("background-audio");
             bgAudio.volume = 0.5;
             bgAudio.play().catch(e => {
@@ -439,7 +422,6 @@
             }
         }
 
-        // Go to Scene 1
         function goToScene1() {
             introScene.setAttribute("visible", "false");
             scene1.setAttribute("visible", "true");
@@ -448,12 +430,10 @@
             mainEntrancePlane.setAttribute("visible", "true");
             roofSculpturePlane.setAttribute("visible", "true");
 
-            // Configure spatial audio for Scene 1 (left side)
-            const leftAudioPos = "-1.5 0 -1"; // Slightly in front to the left
+            const leftAudioPos = "-1.5 0 -1";
             document.getElementById("main_entrance_audio_entity").setAttribute("position", leftAudioPos);
-            document.getElementById("roof_sculpture_audio_entity").setAttribute("position", "-1.5 1.5 -1"); // Higher position
+            document.getElementById("roof_sculpture_audio_entity").setAttribute("position", "-1.5 1.5 -1"); 
             
-            // Set spatial audio properties
             const audioEntities = [
                 document.getElementById("main_entrance_audio_entity"),
                 document.getElementById("roof_sculpture_audio_entity")
@@ -495,34 +475,27 @@
             }, 106000);
         }
 
-        // Go to Scene 2
         function goToScene2() {
             scene1.setAttribute("visible", "false");
             scene2.setAttribute("visible", "true");
             currentScene = "scene2";
 
-            // Stop Scene 1 audio
             mainEntranceAudio.pause();
             roofSculptureAudio.pause();
 
-            // Disable Scene 1 gaze planes
             mainEntrancePlane.classList.remove("gaze-plane");
             roofSculpturePlane.classList.remove("gaze-plane");
 
-            // Enable Scene 2 gaze planes
             mosaicTilesPlane.classList.add("gaze-plane");
             woodCarvingsPlane.classList.add("gaze-plane");
 
-            // Make Scene 2 planes visible
             mosaicTilesPlane.setAttribute("visible", "true");
             woodCarvingsPlane.setAttribute("visible", "true");
 
-            // Configure spatial audio for Scene 2 (right side)
-            const rightAudioPos = "1.5 0 -1"; // Slightly in front to the right
+            const rightAudioPos = "1.5 0 -1"; 
             document.getElementById("mosaic_tiles_audio_entity").setAttribute("position", rightAudioPos);
-            document.getElementById("wood_carvings_audio_entity").setAttribute("position", "1.5 1.5 -1"); // Higher position
+            document.getElementById("wood_carvings_audio_entity").setAttribute("position", "1.5 1.5 -1");
             
-            // Set spatial audio properties
             const audioEntities = [
                 document.getElementById("mosaic_tiles_audio_entity"),
                 document.getElementById("wood_carvings_audio_entity")
@@ -541,7 +514,6 @@
                 });
             });
 
-            // Play first audio after 3 seconds
             setTimeout(() => {
                 mosaicTilesAudio.load();
                 mosaicTilesAudio.play().catch(e => {
@@ -551,7 +523,6 @@
                 audioStartTimes.mosaic_tiles = performance.now();
             }, 3000);
 
-            // Play second audio after 56 seconds
             setTimeout(() => {
                 woodCarvingsAudio.load();
                 woodCarvingsAudio.play().catch(e => {
@@ -561,14 +532,12 @@
                 audioStartTimes.wood_carvings = performance.now();
             }, 56000);
 
-            // Show Finish button after 100 seconds
             setTimeout(() => {
                 document.getElementById("finish-button").setAttribute("visible", "true");
                 document.getElementById("finish-button").classList.add("clickable");
             }, 100000);
         }
 
-        // Event Listeners
         scene1Button.addEventListener("click", goToScene1);
         scene2Button.addEventListener("click", goToScene2);
 
@@ -600,7 +569,6 @@
             }
         });
 
-        // Update Gaze Display
         function updateGazeDisplay() {
             if (currentScene === "scene1") {
                 gazeDisplay.setAttribute("text", "value: " +
@@ -642,7 +610,6 @@
             });
         }
 
-        // Finish Button Click Handler
         function onFinishButtonClick() {
             document.getElementById("finish-button").setAttribute("visible", "false");
             document.getElementById("finish-button").classList.remove("clickable");
